@@ -2,8 +2,8 @@
 
 import pysam
 import subprocess
-from multiprocessing import Process
 import os
+from multiprocessing import Process
 from optparse import OptionParser
 
 def run(region):
@@ -58,6 +58,9 @@ def append_file_name(samfile, to_add="sorted"):
     (prefix, suffix) = samfile.filename.split(".")
     return prefix + "." + to_add
 
+def get_file_prefix(samfile):
+    return samfile.split('/')[-1].split('.')[0]
+
 def run_processes(infile):
     """
     Function to spawn and join the threads.
@@ -92,10 +95,11 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     verbose = options.verbose
-    bam_dir = "bam"
-    mpileup_dir = "mpileup"
 
     bam_file = pysam.Samfile(str(options.infile), "rb")
+    # append the name of the file to the dir to avoid name conflicts
+    bam_dir = "bam" + "_" + get_file_prefix(bam_file.filename)
+    mpileup_dir = "mpileup" + "_" + get_file_prefix(bam_file.filename)
 
     if (options.sort):
         options.index = True
