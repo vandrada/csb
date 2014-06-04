@@ -2,49 +2,47 @@
 
 import pysam
 import subprocess
-import threading
+from multiprocessing import Process
 import os
 from optparse import OptionParser
 
-class runner(threading.Thread):
-    def __init__(self, region, threadID=0, name=""):
-        """
-        Creates a new runner object
-        :param region: the region to extract from the bam file
-        :param threadID: the ID of this thread, defaults to 0
-        :param name: the name of this thread, defaults to ""
-        """
-        threading.Thread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.region = region
+def run(region):
+    """
+    Extracts the specific region and creates a mpileup file from that
+    region.
+    """
+    region_bam_file = create_bam(region)
+    region_mpileup_file = create_mpileup(region, region_bam_file)
 
-    def run(self):
-        """
-        Extracts the specific region and creates a mpileup file from that
-        region.
-        """
-        # create the bam file
-        current_bam_file = open(os.path.join(bam_dir, self.region + ".bam"),
-            "w+b")
-        if (verbose):
-            print "> creating %s" %(current_bam_file.name)
-        subprocess.call(["samtools", "view", "-b", bam_file.filename, self.region],
-                stdout=current_bam_file)
-        if (verbose):
-            print "> done with %s" %(current_bam_file.name)
+    # TODO run varscan
 
-        # create the mpileup file
-        current_mpileup_file =\
-            open(os.path.join(mpileup_dir, self.region + ".mpileup"), "w+b")
-        if (verbose):
-            print "> creating %s" %(current_mpileup_file.name)
-        subprocess.call(["samtools", "mpileup", current_bam_file.name],
-            stdout=current_mpileup_file)
-        if (verbose):
-            print "> done with %s" %(current_mpileup_file.name)
+def create_bam(region):
+    """
+    Creates a bam file from the passed region
+    """
+    region_bam = open(os.path.join(bam_dir, region + ".bam"),
+        "w+b")
+    if (verbose):
+        print "> creating %s" %(region_bam.name)
+    subprocess.call(["samtools", "view", "-b", bam_file.filename, region],
+            stdout=region_bam)
+    if (verbose):
+        print "> FINISHED %s" %(region_bam.name)
 
-        # TODO run varscan
+    return region_bam
+
+def create_mpileup(region, region_bam_file):
+    """
+    Creates a mpileup file from the passed bam file
+    """
+    region_mpileup =\
+        open(os.path.join(mpileup_dir, region + ".mpileup"), "w+b")
+    if (verbose):
+        print "> creating %s" %(region_mpileup.name)
+    subprocess.call(["samtools", "mpileup", region_bam_file.name],
+        stdout=region_mpileup)
+    if (verbose):
+        print "> FINISHED %s" %(region_mpileup.name)
 
 def parse_header(samfile):
     """
@@ -60,23 +58,25 @@ def append_file_name(samfile, to_add="sorted"):
     (prefix, suffix) = samfile.filename.split(".")
     return prefix + "." + to_add
 
-def run_threads(infile):
+def run_processes(infile):
     """
     Function to spawn and join the threads.
     :param infile: the original .bam file to use
     """
-    threads = []
+    processes = []
     if (verbose):
         print "> parsing header sections"
     for region in parse_header(infile):
-        current_thread = runner(region)
-        threads.append(current_thread)
+        process = Process(target=run, args=(region,))
+        # to prevent orphans
+        process.daemon = True
+        processes.append(process)
 
-    for t in threads:
-        t.start()
+    for process in processes:
+        process.start()
 
-    for t in threads:
-        t.join()
+    for process in processes:
+        process.join()
 
 if __name__ == '__main__':
     # Parse the command line arguments
@@ -116,4 +116,4 @@ if __name__ == '__main__':
     os.mkdir(bam_dir)
     os.mkdir(mpileup_dir)
 
-    run_threads(bam_file)
+    run_processes(bam_file)
