@@ -6,6 +6,33 @@ import os
 from multiprocessing import Process
 from optparse import OptionParser
 
+def append_file_name(samfile, to_add="sorted"):
+    """
+    Creates a new file name with a string appended
+    :param samfile: the original file name to use
+    :param to_add: what to append to the file
+    """
+    (prefix, suffix) = samfile.filename.split(".")
+    return prefix + "." + to_add
+
+def get_file_prefix(samfile):
+    """
+    Returns the file name without the extension
+    i.e ~/User/Desktop/hello.txt -> hello
+    :param samfile: the file to extract the name from
+    """
+    return samfile.split('/')[-1].split('.')[0]
+
+def parse_header(samfile):
+    """
+    Returns the sections from 'samfile'
+    :param samfile: the sam file to parse
+    """
+    sections = [SN['SN'] for SN in samfile.header['SQ']]
+    if (verbose):
+        print "> found sections: %s" % ', '.join(item for item in sections)
+    return sections
+
 def run(region):
     """
     Extracts the specific region and creates a mpileup file from that
@@ -19,6 +46,7 @@ def run(region):
 def create_bam(region):
     """
     Creates a bam file from the passed region
+    :param region: the region to create a bam file from
     """
     region_bam = open(os.path.join(bam_dir, region + ".bam"),
         "w+b")
@@ -34,6 +62,8 @@ def create_bam(region):
 def create_mpileup(region, region_bam_file):
     """
     Creates a mpileup file from the passed bam file
+    :param region: the region to create a mpileup file from
+    :param region_bam_file: the bam file to convert
     """
     region_mpileup =\
         open(os.path.join(mpileup_dir, region + ".mpileup"), "w+b")
@@ -44,26 +74,9 @@ def create_mpileup(region, region_bam_file):
     if (verbose):
         print "> FINISHED %s" %(region_mpileup.name)
 
-def parse_header(samfile):
-    """
-    Returns the sections from 'samfile'
-    :param samfile: the sam file to parse
-    """
-    sections = [SN['SN'] for SN in samfile.header['SQ']]
-    if (verbose):
-        print "> found sections: %s" % ', '.join(item for item in sections)
-    return sections
-
-def append_file_name(samfile, to_add="sorted"):
-    (prefix, suffix) = samfile.filename.split(".")
-    return prefix + "." + to_add
-
-def get_file_prefix(samfile):
-    return samfile.split('/')[-1].split('.')[0]
-
 def run_processes(infile):
     """
-    Function to spawn and join the threads.
+    Function to spawn and join the processes
     :param infile: the original .bam file to use
     """
     processes = []
