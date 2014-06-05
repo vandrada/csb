@@ -48,7 +48,7 @@ def build_varscan_args(arg_f, mpileup_f):
 def run(region):
     """
     Extracts the specific region and creates a mpileup file from that
-    region.
+    region, in turn this mpileup file is used to create a vcf file.
     """
     region_bam = create_bam(region)
     region_mpileup = create_mpileup(region, region_bam)
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     parser.add_option("--keep-mpileup", action="store_true", default=False,
         dest="keep_mpileup", help="keeps the intermediate mpileup files")
     parser.add_option("--varscan-conf", dest="arg_f", default=None,
-        help="the location of varscan.conf (defaults to working directory")
+        help="the location of varscan.conf (defaults to working directory)")
     parser.add_option("--sort", action="store_true", dest="sort",
         help="use if the file needs to be sorted (implies --index)")
     parser.add_option("--index", action="store_true", dest="index",
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     vcf_dir = "vcf_" + get_file_prefix(bam_file.filename)
     t_format = '%H:%M:%S'
 
-    # get the file ready for processing if necessary
+    # get the file ready for processing (if necessary)
     if options.sort:
         options.index = True
         sorted_file = append_file_name(bam_file, "sorted")
