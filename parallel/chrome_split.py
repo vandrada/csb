@@ -26,6 +26,17 @@ def get_file_prefix(samfile):
     """
     return samfile.split('/')[-1].split('.')[0]
 
+def safe_mkdir(dirname):
+    """
+    Attempts to make a directory with the name `dirname`. If a directory already
+    exists with that name, the program exists gracefully with a nice message.
+    """
+    try:
+        os.mkdir(dirname)
+    except OSError:
+        print "please remove/rename/move %s" % (dirname)
+        sys.exit()
+
 def parse_header(samfile):
     """
     Returns the sections from 'samfile'
@@ -93,12 +104,12 @@ def create_vcf(region, mpileup_f):
     """
     vcf_f = open(os.path.join(vcf_dir, region + ".vcf"), "w+")
     if verbose:
-        print "> %s running VarScan on %s" % (strftime(t_format), mpileup_f.name)
+        print "> %s creating vcf for %s" % (strftime(t_format), region)
     subprocess.call(build_varscan_args(arg_f, mpileup_f), stdout=vcf_f)
     if not keep_mpileup:
         os.remove(mpileup_f.name)
     if verbose:
-        print "> FINISHED running VarScan on %s" % (mpileup_f.name)
+        print "> %s FINISHED vcf file for %s" % (strftime(t_format), region)
 
 def run_processes(infile):
     """
@@ -139,6 +150,8 @@ if __name__ == '__main__':
         help="keeps the intermediate bam files", default=False)
     parser.add_option("--keep-mpileup", action="store_true", default=False,
         dest="keep_mpileup", help="keeps the intermediate mpileup files")
+    parser.add_option("--keep-all", action="store_true", dest="keep_all",
+        help="keeps bam and mpileup files")
     parser.add_option("--varscan-conf", dest="varscan_conf", default=None,
         help="the location of varscan.conf (defaults to the working directory)")
     parser.add_option("--sort", action="store_true", dest="sort",
@@ -153,6 +166,9 @@ if __name__ == '__main__':
     verbose = options.verbose
     keep_bam = options.keep_bam
     keep_mpileup = options.keep_mpileup
+    if options.keep_all:
+        keep_bam = True
+        keep_mpileup = True
     if not os.path.exists(options.varscan_location):
         print "> VarScan location (%s) not valid" % (options.varscan_location)
         sys.exit()
@@ -188,21 +204,9 @@ if __name__ == '__main__':
         subprocess.call(["samtools", "index", bam_file.filename])
 
     # create directories to avoid a messy working directory
-    try:
-        os.mkdir(bam_dir)
-    except OSError:
-        print "Please remove/rename/move %s" % (bam_dir)
-        sys.exit()
-    try:
-        os.mkdir(mpileup_dir)
-    except OSError:
-        print "Please remove/rename/move %s" % (mpileup_dir)
-        sys.exit()
-    try:
-        os.mkdir(vcf_dir)
-    except OSError:
-        print "Please remove/rename/move %s" % (vcf_dir)
-        sys.exit()
+    safe_mkdir(bam_dir)
+    safe_mkdir(mpileup_dir)
+    safe_mkdir(vcf_dir)
 
     run_processes(bam_file)
 
