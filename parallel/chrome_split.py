@@ -8,8 +8,6 @@ from time import strftime
 from multiprocessing import Process
 from optparse import OptionParser
 
-# TODO run varscan
-
 def append_file_name(samfile, to_add):
     """
     Creates a new file name with a string appended
@@ -28,7 +26,7 @@ def parse_header(samfile):
     """
     Returns the sections from 'samfile'
     """
-    sections = [SN['SN'] for SN in samfile.header['SQ']]
+    sections = [SQ['SN'] for SQ in samfile.header['SQ']]
     if verbose:
         print "> found sections: %s" % (', '.join(item for item in sections))
     return sections
@@ -44,6 +42,7 @@ def build_varscan_args(arg_f, mpileup_f):
 
     # rewind the file to the beginning for future calls to build_varscan_args
     arg_f.seek(0)
+
     return args
 
 def run(region):
