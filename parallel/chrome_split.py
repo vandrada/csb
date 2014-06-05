@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
-import pysam
 import subprocess
 import os
 import sys
+try:
+    import pysam
+except ImportError:
+    print "please install pysam"
+    sys.exit()
 from time import strftime
 from multiprocessing import Process
 from optparse import OptionParser
@@ -100,6 +104,11 @@ def run_processes(infile):
     """
     Function to spawn and join the processes
     """
+    # Special note: I debated for a while whether to use multiprocessing or
+    # threading, ultimately I decided on the multiprocessing module since each
+    # process runs in its own memory space and there aren't any shared variables
+    # at all. Also, I read somewhere that processes are cheaper on Linux and OS
+    # X than threads.
     processes = []
     if verbose:
         print "> parsing header sections"
@@ -130,8 +139,8 @@ if __name__ == '__main__':
         help="keeps the intermediate bam files", default=False)
     parser.add_option("--keep-mpileup", action="store_true", default=False,
         dest="keep_mpileup", help="keeps the intermediate mpileup files")
-    parser.add_option("--varscan-conf", dest="arg_f", default=None,
-        help="the location of varscan.conf (defaults to working directory)")
+    parser.add_option("--varscan-conf", dest="varscan_conf", default=None,
+        help="the location of varscan.conf (defaults to the working directory)")
     parser.add_option("--sort", action="store_true", dest="sort",
         help="use if the file needs to be sorted (implies --index)")
     parser.add_option("--index", action="store_true", dest="index",
@@ -150,7 +159,7 @@ if __name__ == '__main__':
     else:
         varscan_location = options.varscan_location
     action = options.action
-    arg_f = options.arg_f
+    arg_f = options.varscan_conf
     if arg_f == None:
         arg_f = open("varscan.conf", "r")
 
