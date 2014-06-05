@@ -1,26 +1,33 @@
-# Parallel Pipeline
-## Summer 2014
-### Description
+# Name
+Parallel Region Analyzer
+
+# Description
 Processes a bam file by spawning a process to handle each region in the bam
 file. Each process creates a new bam file for that process, creates a mpileup
 file, and finally creates a vcf file. The arguments to pass to VarScan are read
 from a `varscan.conf` file. This file is expected to be in the current working
 directory.
 
-### Options and Arguments
-#### Needed Arguments
-* `-f`, `--file`: the bam file to process.
-* `--varscan`: the location to the VarScan jar
-* `--action`: the action for VarScan to run
+# Dependencies
+* pysam: install with `pip install pysam`.
+* samtools: install from [SourceForge](http://samtools.sourceforge.net/) or with
+Homebrew.
+* VarScan: install from [SourceForge](http://varscan.sourceforge.net/).
 
-#### Options
+# Synopsis
+## Arguments
+* `-f`, `--file`: the bam file to process.
+* `--varscan`: the location to the VarScan jar.
+* `--action`: the action for VarScan to run.
+
+## Options
 * `--index`: if the bam file has not been indexed this flag should be passed.
 
 * `--sort`: if the bam file has not been sorted this flag should be passed.
-This switch implies `--index`
+This switch implies `--index`.
 
 * `--varscan-conf`: the location of `varscan.conf` if one is not in the current
-working directory
+working directory.
 
 * `--keep-bam`: keeps the bam files for each region. The default behavior is
 to remove the bam file once the mpileup file has been created.
@@ -31,20 +38,21 @@ behavior is to remove them once the vcf file has been created.
 * `-v`, `--verbose`: if this flag is passed, additional information will be
 printed out while the program is running.
 
-#### Examples
+# Examples
 * `chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar
---action=mpileup2snp`: This command will run `mpileup2snp` on `your.bam`
+--action=mpileup2snp`: This command will run `mpileup2snp` on the regions of
+`your.bam`.
 
 * `chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar
---action=mpileup2snp --verbose`: This command will run `mpileup2snp` on
-`your.bam` and print additional information as each step completes.
+--action=mpileup2snp --verbose`: This command will run `mpileup2snp` on the
+regions of `your.bam` and print additional information as each step completes.
 
 * `chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar
---action=mpileup2snp --keep-bam`: This command will run `mpileup2snp` on
-`your.bam` and will keep the intermediate bam files that are created in the
-process.
+--action=mpileup2snp --keep-bam`: This command will run `mpileup2snp` on the
+regions of `your.bam` and will keep the intermediate bam files that are created
+in the process.
 
-### Notes
+# Notes
 * The program creates three directories in your working directory with the
 suffixes of `bam_`, `mpileup_`, and `vcf_` the suffix of each will be the name
 of the passed in file. i.e `chrome_split -f test.bam` will create `bam_test/`,
