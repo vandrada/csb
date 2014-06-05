@@ -8,13 +8,18 @@ file, and finally creates a vcf file. The arguments to pass to VarScan are read
 from a `varscan.conf` file. This file is expected to be in the current working
 directory.
 
-# Dependencies
+# Dependencies and Preliminaries
 * pysam: install with `pip install pysam`.
 * samtools: install from [SourceForge](http://samtools.sourceforge.net/) or with
 Homebrew.
 * VarScan: install from [SourceForge](http://varscan.sourceforge.net/).
+* vcftools: install from [SourceForge](http://vcftools.sourceforge.net/) or with
+Homebrew.
 
 # Synopsis
+usage: chrome_split --file=[your file] --varscan=[VarScan.jar]
+--action=mpileup2snp
+
 ## Arguments
 * `-f`, `--file`: the bam file to process.
 * `--varscan`: the location to the VarScan jar.
@@ -35,6 +40,9 @@ to remove the bam file once the mpileup file has been created.
 * `--keep-mpileup`: keeps the mpileup files for each region. The default
 behavior is to remove them once the vcf file has been created.
 
+* `--keep-all`: keeps the bam file and the mpileup files. Implies `--keep-bam`
+and `--keep-mpileup`.
+
 * `-v`, `--verbose`: if this flag is passed, additional information will be
 printed out while the program is running.
 
@@ -54,12 +62,12 @@ in the process.
 
 # Notes
 * The program creates three directories in your working directory with the
-suffixes of `bam_`, `mpileup_`, and `vcf_` the suffix of each will be the name
+prefixes of `bam_`, `mpileup_`, and `vcf_` the suffix of each will be the name
 of the passed in file. i.e `chrome_split -f test.bam` will create `bam_test/`,
 `mpileup_test/`, and `vcf_test/`.
 
 * To save space, the default behavior is to delete each file once it has been
-processed. For small files the three directories shouldn't be a problem, but
+processed. For small bam files the three directories shouldn't be a problem, but
 processing an initial bam file of five gigabytes in size produced an additional
 forty gigabytes. If you would like to keep the bam file pass `--keep-bam`; if
 you would like to keep the mpileup files pass `--keep-mpileup`.
