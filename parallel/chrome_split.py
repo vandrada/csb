@@ -29,7 +29,7 @@ def get_file_prefix(samfile):
 def safe_mkdir(dirname):
     """
     Attempts to make a directory with the name `dirname`. If a directory already
-    exists with that name, the program exists gracefully with a nice message.
+    exists with that name, the program exits gracefully with a nice message.
     """
     try:
         os.mkdir(dirname)
@@ -115,11 +115,12 @@ def run_processes(infile):
     """
     Function to spawn and join the processes
     """
-    # Special note: I debated for a while whether to use multiprocessing or
-    # threading, ultimately I decided on the multiprocessing module since each
-    # process runs in its own memory space and there aren't any shared variables
-    # at all. Also, I read somewhere that processes are cheaper on Linux and OS
-    # X than threads.
+    # Note: I debated for a while whether to use multiprocessing or threading,
+    # ultimately I decided on the multiprocessing module since each process runs
+    # in its own memory space and there aren't any shared variables.  Also, I
+    # read somewhere that processes are cheaper on Linux and OS X than threads.
+    # I don't know how true that is, and with that being said it's bad that that
+    # made an impact on my decision, but that's the truth.
     processes = []
     if verbose:
         print "> parsing header sections"
@@ -193,11 +194,7 @@ if __name__ == '__main__':
         if verbose:
             print "> sorting %s for indexing" % (bam_file.filename)
             print "> creating %s" % (sorted_file)
-        subprocess.call(["samtools", "sort", bam_file.filename,
-            append_file_name(bam_file, "sorted")])
-        # we need to append .bam since samtools takes the new prefix not the
-        # new file name
-        bam_file = pysam.Samfile(sorted_file + ".bam")
+        subprocess.call(["samtools", "sort", bam_file.filename, sorted_file])
     if options.index:
         if verbose:
             print "> indexing %s for viewing" % (bam_file.filename)
