@@ -111,6 +111,20 @@ def create_vcf(region, mpileup_f):
     if verbose:
         print "> %s FINISHED vcf file for %s" % (strftime(t_format), region)
 
+def concat_vcfs(vcf_dir):
+    """
+    Concats all the vcf files created into a new file in the same directory.
+    """
+    #TODO test this function
+    vcf_file = open(os.path.join(vcf_dir, get_file_prefix(bam_file.filename) +
+        ".vcf"), "w+b")
+    arg_list = ["vcf_concat"]
+    for vcf in os.listdir(vcf_dir):
+        arg_list.append(vcf)
+    if verbose:
+        "%s running vcf_concat in %s" % (strftime(t_format), vcf_dir)
+    subprocess.call(arg_list, stdout=vcf_file)
+
 def run_processes(infile):
     """
     Function to spawn and join the processes
@@ -179,6 +193,12 @@ if __name__ == '__main__':
     arg_f = options.varscan_conf
     if arg_f == None:
         arg_f = open("varscan.conf", "r")
+    # test for PERL5LIB before any work is done
+    try:
+        os.environ['PERL5LIB']
+    except KeyError:
+        print "Please set your PERL5LIB variable"
+        sys.exit()
 
     bam_file = pysam.Samfile(str(options.infile), "rb")
     # append the name of the file to the dir to avoid name conflicts
