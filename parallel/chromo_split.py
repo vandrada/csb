@@ -232,3 +232,5 @@ if __name__ == '__main__':
         os.rmdir(bam_dir)
     if not keep_mpileup:
         os.rmdir(mpileup_dir)
+
+    concat_vcfs(vcf_dir)
