@@ -122,7 +122,8 @@ def concat_vcfs(vcf_dir):
     for vcf in os.listdir(vcf_dir):
         arg_list.append(vcf)
     if verbose:
-        "%s running vcf_concat in %s" % (strftime(t_format), vcf_dir)
+        "%s running vcf_concat on the files in %s" %\
+            (strftime(t_format), vcf_dir)
     subprocess.call(arg_list, stdout=vcf_file)
 
 def run_processes(infile):
