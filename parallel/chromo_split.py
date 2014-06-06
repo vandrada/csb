@@ -115,15 +115,16 @@ def concat_vcfs(vcf_dir):
     """
     Concats all the vcf files created into a new file in the same directory.
     """
-    #TODO test this function
-    vcf_file = open(os.path.join(vcf_dir, get_file_prefix(bam_file.filename) +
-        ".vcf"), "w+b")
-    arg_list = ["vcf_concat"]
+    arg_list = ["vcf-concat"]
     for vcf in os.listdir(vcf_dir):
-        arg_list.append(vcf)
+        arg_list.append(os.path.join(vcf_dir, vcf))
     if verbose:
         "%s running vcf_concat on the files in %s" %\
             (strftime(t_format), vcf_dir)
+    # the new file has to be created after the relevant vcf files have been
+    # added to the list, if it's created before very bad things happen
+    vcf_file = open(os.path.join(vcf_dir, get_file_prefix(bam_file.filename) +
+        ".vcf"), "w+")
     subprocess.call(arg_list, stdout=vcf_file)
 
 def run_processes(infile):
@@ -198,7 +199,7 @@ if __name__ == '__main__':
     try:
         os.environ['PERL5LIB']
     except KeyError:
-        print "Please set your PERL5LIB variable"
+        print "Please set your PERL5LIB environment variable"
         sys.exit()
 
     bam_file = pysam.Samfile(str(options.infile), "rb")
