@@ -18,7 +18,7 @@ Homebrew.
 
 # Synopsis
 usage: chrome_split --file=[your file] --varscan=[VarScan.jar]
---action=mpileup2snp
+--action=[VarScan action]
 
 ## Arguments
 * `-f`, `--file`: the bam file to process.
@@ -26,14 +26,17 @@ usage: chrome_split --file=[your file] --varscan=[VarScan.jar]
 * `--action`: the action for VarScan to run.
 
 ## Options
+### Options related to bam files
 * `--index`: if the bam file has not been indexed this flag should be passed.
 
 * `--sort`: if the bam file has not been sorted this flag should be passed.
 This switch implies `--index`.
 
+### Options related to VarScan
 * `--varscan-conf`: the location of `varscan.conf` if one is not in the current
 working directory.
 
+### Options related to this program
 * `--keep-bam`: keeps the bam files for each region. The default behavior is
 to remove the bam file once the mpileup file has been created.
 
@@ -47,18 +50,30 @@ and `--keep-mpileup`.
 printed out while the program is running.
 
 # Examples
-* `chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar
---action=mpileup2snp`: This command will run `mpileup2snp` on the regions of
-`your.bam`.
+The most basic usage is:
 
-* `chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar
---action=mpileup2snp --verbose`: This command will run `mpileup2snp` on the
-regions of `your.bam` and print additional information as each step completes.
+    chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp
 
-* `chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar
---action=mpileup2snp --keep-bam`: This command will run `mpileup2snp` on the
-regions of `your.bam` and will keep the intermediate bam files that are created
-in the process.
+This command will run `mpileup2snp` on the regions of `your.bam`.
+Alternatively you can specify the file with `-f` instead of `--file=`
+
+    chrome_split -f your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --verbose
+
+This command will run `mpileup2snp` on the regions of `your.bam` and print
+additional information as each step completes.
+
+If you would like to keep some of the intermediate files, this example shows how
+to keep the bam files created.
+
+    chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --keep-bam
+
+This command will run `mpileup2snp` on the regions of `your.bam` and will keep
+the intermediate bam files that are created in the process.
+
+Finally, if there isn't a `varscan.conf` in your working directory, you need to
+pass the absolute path to a `varscan.conf`
+
+    chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --varscan-conf=/Users/You/varscan.conf
 
 # Notes
 * The program creates three directories in your working directory with the
@@ -70,4 +85,5 @@ of the passed in file. i.e `chrome_split -f test.bam` will create `bam_test/`,
 processed. For small bam files the three directories shouldn't be a problem, but
 processing an initial bam file of five gigabytes in size produced an additional
 forty gigabytes. If you would like to keep the bam file pass `--keep-bam`; if
-you would like to keep the mpileup files pass `--keep-mpileup`.
+you would like to keep the mpileup files pass `--keep-mpileup`; finally, if you
+would like to keep all the files pass `--keep-all`
