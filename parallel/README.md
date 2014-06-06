@@ -14,7 +14,7 @@ directory.
 Homebrew.
 * VarScan: install from [SourceForge](http://varscan.sourceforge.net/).
 * vcftools: install from [SourceForge](http://vcftools.sourceforge.net/) or with
-Homebrew.
+Homebrew. Be sure to export `PERL5LIB`.
 
 # Synopsis
 usage: chromo_split --file=[your file] --varscan=[VarScan.jar]
@@ -26,17 +26,17 @@ usage: chromo_split --file=[your file] --varscan=[VarScan.jar]
 * `--action`: the action for VarScan to run.
 
 ## Options
-### Options related to bam files
+### Options Related to bam Files
 * `--index`: if the bam file has not been indexed this flag should be passed.
 
 * `--sort`: if the bam file has not been sorted this flag should be passed.
 This switch implies `--index`.
 
-### Options related to VarScan
+### Options Related to VarScan
 * `--varscan-conf`: the location of `varscan.conf` if one is not in the current
 working directory.
 
-### Options related to this program
+### Options Related to This Program
 * `--keep-bam`: keeps the bam files for each region. The default behavior is
 to remove the bam file once the mpileup file has been created.
 
@@ -86,4 +86,4 @@ processed. For small bam files the three directories shouldn't be a problem, but
 processing an initial bam file of five gigabytes in size produced an additional
 forty gigabytes. If you would like to keep the bam file pass `--keep-bam`; if
 you would like to keep the mpileup files pass `--keep-mpileup`; finally, if you
-would like to keep all the files pass `--keep-all`
+would like to keep all the files pass `--keep-all`.
