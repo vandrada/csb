@@ -4,9 +4,10 @@ Parallel Region Analyzer
 # Description
 Processes a bam file by spawning a process to handle each region in the bam
 file. Each process creates a new bam file for that process, creates a mpileup
-file, and finally creates a vcf file. The arguments to pass to VarScan are read
-from a `varscan.conf` file. This file is expected to be in the current working
-directory.
+file, and finally creates a vcf file. The vcf files are then merged into one
+file that is located in `vcf_dir/` with the name of the passed in bam file.  The
+arguments to pass to VarScan are read from a `varscan.conf` file. This file is
+expected to be in the current working directory.
 
 # Dependencies and Preliminaries
 * pysam: install with `pip install pysam`.
