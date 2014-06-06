@@ -17,7 +17,7 @@ Homebrew.
 Homebrew.
 
 # Synopsis
-usage: chrome_split --file=[your file] --varscan=[VarScan.jar]
+usage: chromo_split --file=[your file] --varscan=[VarScan.jar]
 --action=[VarScan action]
 
 ## Arguments
@@ -52,12 +52,12 @@ printed out while the program is running.
 # Examples
 The most basic usage is:
 
-    chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp
+    chromo_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp
 
 This command will run `mpileup2snp` on the regions of `your.bam`.
 Alternatively you can specify the file with `-f` instead of `--file=`
 
-    chrome_split -f your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --verbose
+    chromo_split -f your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --verbose
 
 This command will run `mpileup2snp` on the regions of `your.bam` and print
 additional information as each step completes.
@@ -65,7 +65,7 @@ additional information as each step completes.
 If you would like to keep some of the intermediate files, this example shows how
 to keep the bam files created.
 
-    chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --keep-bam
+    chromo_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --keep-bam
 
 This command will run `mpileup2snp` on the regions of `your.bam` and will keep
 the intermediate bam files that are created in the process.
@@ -73,12 +73,12 @@ the intermediate bam files that are created in the process.
 Finally, if there isn't a `varscan.conf` in your working directory, you need to
 pass the absolute path to a `varscan.conf`
 
-    chrome_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --varscan-conf=/Users/You/varscan.conf
+    chromo_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --varscan-conf=/Users/You/varscan.conf
 
 # Notes
 * The program creates three directories in your working directory with the
 prefixes of `bam_`, `mpileup_`, and `vcf_` the suffix of each will be the name
-of the passed in file. i.e `chrome_split -f test.bam` will create `bam_test/`,
+of the passed in file. i.e `chromo_split -f test.bam` will create `bam_test/`,
 `mpileup_test/`, and `vcf_test/`.
 
 * To save space, the default behavior is to delete each file once it has been
