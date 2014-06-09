@@ -3,7 +3,7 @@ Parallel Region Analyzer
 
 # Description
 Processes a bam file by spawning a process to handle each region in the bam
-file. Each process creates a new bam file for that process, creates a mpileup
+file. Each process creates a new bam file for that region, creates a mpileup
 file, and finally creates a vcf file. The vcf files are then merged into one
 file that is located in `vcf_dir/` with the name of the passed in bam file.  The
 arguments to pass to VarScan are read from a `varscan.conf` file. This file is
@@ -18,13 +18,12 @@ Homebrew.
 Homebrew. Be sure to export `PERL5LIB`.
 
 # Synopsis
-usage: chromo_split --file=[your file] --varscan=[VarScan.jar]
---action=[VarScan action]
+usage: chromo\_split infile action varscan\_location
 
 ## Arguments
-* `-f`, `--file`: the bam file to process.
-* `--varscan`: the location to the VarScan jar.
-* `--action`: the action for VarScan to run.
+* `infile`: the bam file to process.
+* `action`: the action for VarScan to run.
+* `varscan_location`: the location to the VarScan jar.
 
 ## Options
 ### Options Related to bam Files
@@ -37,7 +36,7 @@ This switch implies `--index`.
 * `--varscan-conf`: the location of `varscan.conf` if one is not in the current
 working directory.
 
-### Options Related to This Program
+### Other Options
 * `--keep-bam`: keeps the bam files for each region. The default behavior is
 to remove the bam file once the mpileup file has been created.
 
@@ -53,20 +52,22 @@ printed out while the program is running.
 # Examples
 The most basic usage is:
 
-    chromo_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp
+    chromo_split your.bam mpileup2snp /Users/You/VarScan.jar
 
 This command will run `mpileup2snp` on the regions of `your.bam`.
-Alternatively you can specify the file with `-f` instead of `--file=`
 
-    chromo_split -f your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --verbose
+There is also a `--verbose` flag.
+
+    chromo_split your.bam /mpileup2snp Users/You/VarScan.jar --verbose
 
 This command will run `mpileup2snp` on the regions of `your.bam` and print
-additional information as each step completes.
+additional information as each step completes. You can also specify `--verbose`
+with `-v`.
 
 If you would like to keep some of the intermediate files, this example shows how
 to keep the bam files created.
 
-    chromo_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --keep-bam
+    chromo_split your.bam mpileup2snp /Users/You/VarScan.jar --keep-bam
 
 This command will run `mpileup2snp` on the regions of `your.bam` and will keep
 the intermediate bam files that are created in the process.
@@ -74,17 +75,20 @@ the intermediate bam files that are created in the process.
 Finally, if there isn't a `varscan.conf` in your working directory, you need to
 pass the absolute path to a `varscan.conf`
 
-    chromo_split --file=your.bam --varscan=/Users/You/VarScan.jar --action=mpileup2snp --varscan-conf=/Users/You/varscan.conf
+    chromo_split your.bam mpileup2snp /Users/You/VarScan.jar --varscan-conf=/Users/You/varscan.conf
 
 # Notes
 * The program creates three directories in your working directory with the
 prefixes of `bam_`, `mpileup_`, and `vcf_` the suffix of each will be the name
-of the passed in file. i.e `chromo_split -f test.bam` will create `bam_test/`,
-`mpileup_test/`, and `vcf_test/`.
+of the passed in file. i.e `chromo_split test.bam [...]` will create
+`bam_test/`, `mpileup_test/`, and `vcf_test/`.
 
 * To save space, the default behavior is to delete each file once it has been
 processed. For small bam files the three directories shouldn't be a problem, but
-processing an initial bam file of five gigabytes in size produced an additional
-forty gigabytes. If you would like to keep the bam file pass `--keep-bam`; if
-you would like to keep the mpileup files pass `--keep-mpileup`; finally, if you
-would like to keep all the files pass `--keep-all`.
+processing a bigger bam file can produce a lot of additional data. If you would
+like to keep the bam file pass `--keep-bam`; if you would like to keep the
+mpileup files pass `--keep-mpileup`; finally, if you would like to keep all the
+files pass `--keep-all`.
+
+* The `varscan.conf` file is simply a file where each argument to pass to
+VarScan is on a single line.
