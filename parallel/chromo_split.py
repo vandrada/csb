@@ -10,7 +10,7 @@ except ImportError:
     sys.exit()
 from time import strftime
 from multiprocessing import Process
-from optparse import OptionParser
+from argparse import ArgumentParser
 
 def append_file_name(samfile, to_add):
     """
@@ -119,7 +119,7 @@ def concat_vcfs(vcf_dir):
     for vcf in os.listdir(vcf_dir):
         arg_list.append(os.path.join(vcf_dir, vcf))
     if verbose:
-        "%s running vcf_concat on the files in %s" %\
+        print "%s running vcf_concat on the files in %s" %\
             (strftime(t_format), vcf_dir)
     # the new file has to be created after the relevant vcf files have been
     # added to the list, if it's created before very bad things happen
@@ -154,45 +154,46 @@ def run_processes(infile):
 
 if __name__ == '__main__':
     # parse the command line arguments
-    parser = OptionParser()
-    # needed arguments
-    parser.add_option("-f", "--file", dest="infile",
+    parser = ArgumentParser(description="Processes a bam file by region")
+    # arguments
+    parser.add_argument("infile",
         help="absolute path to the bam file to process")
-    parser.add_option("--varscan", dest="varscan_location",
-        help="absolute path to the VarScan jar file")
-    parser.add_option("--action", dest="action",
+    parser.add_argument("action",
         help="the action for VarScan to run")
+    parser.add_argument("varscan_location",
+        help="absolute path to the VarScan jar file")
     # options
-    parser.add_option("--keep-bam", action="store_true", dest="keep_bam",
+    parser.add_argument("--keep-bam", action="store_true", dest="keep_bam",
         help="keeps the intermediate bam files", default=False)
-    parser.add_option("--keep-mpileup", action="store_true", default=False,
+    parser.add_argument("--keep-mpileup", action="store_true", default=False,
         dest="keep_mpileup", help="keeps the intermediate mpileup files")
-    parser.add_option("--keep-all", action="store_true", dest="keep_all",
+    parser.add_argument("--keep-all", action="store_true", dest="keep_all",
         help="keeps bam and mpileup files")
-    parser.add_option("--varscan-conf", dest="varscan_conf", default=None,
+    parser.add_argument("--varscan-conf", dest="varscan_conf", default=None,
         help="the location of varscan.conf (defaults to the working directory)")
-    parser.add_option("--sort", action="store_true", dest="sort",
+    parser.add_argument("--sort", action="store_true", dest="sort",
         help="use if the file needs to be sorted (implies --index)")
-    parser.add_option("--index", action="store_true", dest="index",
+    parser.add_argument("--index", action="store_true", dest="index",
         help="use if the file needs to be indexed")
-    parser.add_option('-v', "--verbose", action="store_true", dest="verbose",
+    parser.add_argument('-v', "--verbose", action="store_true", dest="verbose",
         help="output additional information")
-    (options, args) = parser.parse_args()
+    args = parser.parse_args()
+    print args
 
     # global variables just to save some typing
-    verbose = options.verbose
-    keep_bam = options.keep_bam
-    keep_mpileup = options.keep_mpileup
-    if options.keep_all:
+    verbose = args.verbose
+    keep_bam = args.keep_bam
+    keep_mpileup = args.keep_mpileup
+    if args.keep_all:
         keep_bam = True
         keep_mpileup = True
-    if not os.path.exists(options.varscan_location):
-        print "> VarScan location (%s) not valid" % (options.varscan_location)
+    if not os.path.exists(args.varscan_location):
+        print "> VarScan location (%s) not valid" % (args.varscan_location)
         sys.exit()
     else:
-        varscan_location = options.varscan_location
-    action = options.action
-    arg_f = options.varscan_conf
+        varscan_location = args.varscan_location
+    action = args.action
+    arg_f = args.varscan_conf
     if arg_f == None:
         arg_f = open("varscan.conf", "r")
     # test for PERL5LIB before any work is done
@@ -202,7 +203,7 @@ if __name__ == '__main__':
         print "Please set your PERL5LIB environment variable"
         sys.exit()
 
-    bam_file = pysam.Samfile(str(options.infile), "rb")
+    bam_file = pysam.Samfile(str(args.infile), "rb")
     # append the name of the file to the dir to avoid name conflicts
     bam_dir = "bam_" + get_file_prefix(bam_file.filename)
     mpileup_dir = "mpileup_" + get_file_prefix(bam_file.filename)
@@ -210,14 +211,14 @@ if __name__ == '__main__':
     t_format = '%H:%M:%S'
 
     # get the file ready for processing (if necessary)
-    if options.sort:
-        options.index = True
+    if args.sort:
+        args.index = True
         sorted_file = append_file_name(bam_file, "sorted")
         if verbose:
             print "> sorting %s for indexing" % (bam_file.filename)
             print "> creating %s" % (sorted_file)
         subprocess.call(["samtools", "sort", bam_file.filename, sorted_file])
-    if options.index:
+    if args.index:
         if verbose:
             print "> indexing %s for viewing" % (bam_file.filename)
         subprocess.call(["samtools", "index", bam_file.filename])
