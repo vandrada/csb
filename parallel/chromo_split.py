@@ -178,7 +178,6 @@ if __name__ == '__main__':
     parser.add_argument('-v', "--verbose", action="store_true", dest="verbose",
         help="output additional information")
     args = parser.parse_args()
-    print args
 
     # global variables just to save some typing
     verbose = args.verbose
