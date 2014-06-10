@@ -4,6 +4,10 @@ import subprocess
 import os
 import sys
 try:
+    from concurrent.futures import ThreadPoolExecutor
+except ImportError:
+    print "please install futures"
+try:
     import pysam
 except ImportError:
     print "please install pysam"
@@ -70,14 +74,9 @@ def run(region):
     Extracts the specific region and creates a mpileup file from that
     region, in turn this mpileup file is used to create a vcf file.
     """
-    region_bam = create_bam(region)
-    region_mpileup = create_mpileup(region, region_bam)
-    create_vcf(region, region_mpileup)
-
-    # close the files
-    region_bam.close()
-    region_mpileup.close()
-
+    with create_bam(region) as region_bam:
+        with create_mpileup(region, region_bam) as region_mpileup:
+            create_vcf(region, region_mpileup)
 
 def create_bam(region):
     """
@@ -176,20 +175,12 @@ def run_processes(infile):
     processes = []
     if verbose:
         print "> parsing header sections"
-    for region in parse_header(infile):
-        if with_pipe:
-            process = Process(target=run_with_pipe, args=(region,))
-        else:
-            process = Process(target=run, args=(region,))
-        # to prevent orphans
-        process.daemon = True
-        processes.append(process)
-
-    for process in processes:
-        process.start()
-
-    for process in processes:
-        process.join()
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        for region in parse_header(infile):
+            if run_with_pipe:
+                executor.submit(run_with_pipe, region)
+            else:
+                executor.submit(run, region)
 
 if __name__ == '__main__':
     # parse the command line arguments
