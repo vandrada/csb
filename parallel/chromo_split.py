@@ -103,7 +103,7 @@ def create_mpileup(region, bam_f):
     if args.verbose:
         print "> %s creating %s" % (strftime(t_format), mpileup_f.name)
     subprocess.call(["samtools", "mpileup", bam_f.name], stdout=mpileup_f)
-    if not keep_bam:
+    if not args.keep_bam:
         os.remove(bam_f.name)
     if args.verbose:
         print "> %s FINISHED mpileup file for %s" % (strftime(t_format), region)
@@ -118,7 +118,7 @@ def create_vcf(region, mpileup_f):
     if args.verbose:
         print "> %s creating vcf for %s" % (strftime(t_format), region)
     subprocess.call(build_varscan_args(arg_f, mpileup_f), stdout=vcf_f)
-    if not keep_mpileup:
+    if not args.keep_mpileup:
         os.remove(mpileup_f.name)
     if args.verbose:
         print "> %s FINISHED vcf file for %s" % (strftime(t_format), region)
@@ -219,8 +219,6 @@ if __name__ == '__main__':
     bam_file = pysam.Samfile(str(args.infile), "rb")
 
     # global variables just to save some typing
-    keep_bam = args.keep_bam
-    keep_mpileup = args.keep_mpileup
     action = args.action
     with_pipe = args.with_pipe
     arg_f = args.varscan_conf
@@ -242,11 +240,11 @@ if __name__ == '__main__':
         varscan_location = args.varscan_location
     # handle `--keep-all`
     if args.keep_all:
-        keep_bam = True
-        keep_mpileup = True
+        args.keep_bam = True
+        args.keep_mpileup = True
     if with_pipe:
-        keep_bam = False
-        keep_mpileup = False
+        args.keep_bam = False
+        args.keep_mpileup = False
 
     # append the name of the file to the dirs to avoid name conflicts
     bam_dir = "bam_" + get_file_prefix(bam_file.filename)
@@ -276,9 +274,9 @@ if __name__ == '__main__':
     run_processes(bam_file)
 
     # clean up (if necessary)
-    if not keep_bam and not with_pipe:
+    if not args.keep_bam and not with_pipe:
         os.rmdir(bam_dir)
-    if not keep_mpileup and not with_pipe:
+    if not args.keep_mpileup and not with_pipe:
         os.rmdir(mpileup_dir)
     bam_file.close()
 
