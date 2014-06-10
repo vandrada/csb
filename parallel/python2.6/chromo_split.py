@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Same version of the script, but for python 2.6
+"""
 
 import subprocess
 import os
@@ -189,11 +192,11 @@ if __name__ == '__main__':
     # parse the command line arguments
     parser = OptionParser()
     # arguments
-    parser.add_option("infile",
+    parser.add_option("--infile", dest="infile",
         help="absolute path to the bam file to process")
-    parser.add_option("action",
+    parser.add_option("--action", dest="action",
         help="the action for VarScan to run")
-    parser.add_option("varscan_location",
+    parser.add_option("--varscan_location", dest="varscan_location",
         help="absolute path to the VarScan jar file")
     # options
     parser.add_option("--with-pipe", action="store_true", dest="with_pipe",
