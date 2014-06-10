@@ -178,7 +178,7 @@ def run_processes(infile):
     processes = []
     if args.verbose:
         print "> parsing header sections"
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=args.n_procs) as executor:
         for region in parse_header(infile):
             if not args.with_pipe:
                 executor.submit(run, region)
@@ -197,8 +197,9 @@ if __name__ == '__main__':
         help="absolute path to the VarScan jar file")
     # options
     parser.add_argument("--with-pipe", action="store_true", dest="with_pipe",
-        help="instead of writing to disk, the commands are piped",
-        default=False)
+        help="instead of writing to disk, the commands are piped")
+    parser.add_argument("--n-procs", dest="n_procs", default=None, type=int,
+        help="the number of processes to run at once")
     parser.add_argument("--keep-bam", action="store_true", dest="keep_bam",
         help="keeps the intermediate bam files", default=False)
     parser.add_argument("--keep-mpileup", action="store_true", default=False,
