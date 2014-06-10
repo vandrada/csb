@@ -46,7 +46,7 @@ def parse_header(samfile):
     Returns the sections from 'samfile'
     """
     sections = [SQ['SN'] for SQ in samfile.header['SQ']]
-    if verbose:
+    if args.verbose:
         print "> found sections: %s" % (', '.join(item for item in sections))
     return sections
 
@@ -86,11 +86,11 @@ def create_bam(region):
     Creates a bam file from the passed region
     """
     bam_f = open(os.path.join(bam_dir, region + ".bam"), "w+b")
-    if verbose:
+    if args.verbose:
         print "> %s creating %s" % (strftime(t_format), bam_f.name)
     subprocess.call(["samtools", "view", "-b", bam_file.filename, region],
         stdout=bam_f)
-    if verbose:
+    if args.verbose:
         print "> %s FINISHED bam file for %s" % (strftime(t_format), region)
 
     return bam_f
@@ -100,12 +100,12 @@ def create_mpileup(region, bam_f):
     Creates a mpileup file from the passed bam file
     """
     mpileup_f = open(os.path.join(mpileup_dir, region + ".mpileup"), "w+b")
-    if verbose:
+    if args.verbose:
         print "> %s creating %s" % (strftime(t_format), mpileup_f.name)
     subprocess.call(["samtools", "mpileup", bam_f.name], stdout=mpileup_f)
     if not keep_bam:
         os.remove(bam_f.name)
-    if verbose:
+    if args.verbose:
         print "> %s FINISHED mpileup file for %s" % (strftime(t_format), region)
 
     return mpileup_f
@@ -115,12 +115,12 @@ def create_vcf(region, mpileup_f):
     Runs VarScan on the mpileup file
     """
     vcf_f = open(os.path.join(vcf_dir, region + ".vcf"), "w+")
-    if verbose:
+    if args.verbose:
         print "> %s creating vcf for %s" % (strftime(t_format), region)
     subprocess.call(build_varscan_args(arg_f, mpileup_f), stdout=vcf_f)
     if not keep_mpileup:
         os.remove(mpileup_f.name)
-    if verbose:
+    if args.verbose:
         print "> %s FINISHED vcf file for %s" % (strftime(t_format), region)
 
     vcf_f.close()
@@ -132,7 +132,7 @@ def run_with_pipe(region):
     # it's important that the last command in the pipeline is evoked with
     # `subprocess.call`. If it's not, the program will terminate without waiting
     # for the processes to finish and you'll have to manually kill them.
-    if verbose:
+    if args.verbose:
         print "> %s starting region %s" % (strftime(t_format), region)
     bam = subprocess.Popen(["samtools", "view", "-b", bam_file.filename, region],
         stdout=subprocess.PIPE)
@@ -146,7 +146,7 @@ def run_with_pipe(region):
     bam.stdout.close()
     mpileup.stdout.close()
 
-    if verbose:
+    if args.verbose:
         print "> %s FINISHED region %s" % (strftime(t_format), region)
 
 def concat_vcfs(vcf_dir):
@@ -156,7 +156,7 @@ def concat_vcfs(vcf_dir):
     arg_list = ["vcf-concat"]
     for vcf in os.listdir(vcf_dir):
         arg_list.append(os.path.join(vcf_dir, vcf))
-    if verbose:
+    if args.verbose:
         print "%s running vcf_concat on the files in %s" %\
             (strftime(t_format), vcf_dir)
     # the new file has to be created after the relevant vcf files have been
@@ -176,7 +176,7 @@ def run_processes(infile):
     # I don't know how true that is, and with that being said it's bad that that
     # made an impact on my decision, but that's the truth.
     processes = []
-    if verbose:
+    if args.verbose:
         print "> parsing header sections"
     with ThreadPoolExecutor(max_workers=2) as executor:
         for region in parse_header(infile):
@@ -216,15 +216,14 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     LOCK = Lock()
+    bam_file = pysam.Samfile(str(args.infile), "rb")
 
     # global variables just to save some typing
-    verbose = args.verbose
     keep_bam = args.keep_bam
     keep_mpileup = args.keep_mpileup
     action = args.action
     with_pipe = args.with_pipe
     arg_f = args.varscan_conf
-    bam_file = pysam.Samfile(str(args.infile), "rb")
 
     # test to see if a default varscan.conf should be used
     if arg_f == None:
@@ -259,12 +258,12 @@ if __name__ == '__main__':
     if args.sort:
         args.index = True
         sorted_file = append_file_name(bam_file, "sorted")
-        if verbose:
+        if args.verbose:
             print "> sorting %s for indexing" % (bam_file.filename)
             print "> creating %s" % (sorted_file)
         subprocess.call(["samtools", "sort", bam_file.filename, sorted_file])
     if args.index:
-        if verbose:
+        if args.verbose:
             print "> indexing %s for viewing" % (bam_file.filename)
         subprocess.call(["samtools", "index", bam_file.filename])
 
