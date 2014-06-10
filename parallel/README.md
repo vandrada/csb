@@ -41,6 +41,9 @@ working directory.
 are piped into each other, avoiding disk IO. A directory for bam files and
 mpileup files are not created.
 
+* `--n-procs`: the total number of concurrent processes to run at a time. The
+default is the total number of processes.
+
 * `--keep-bam`: keeps the bam files for each region. The default behavior is
 to remove the bam file once the mpileup file has been created.
 
