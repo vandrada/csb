@@ -26,7 +26,7 @@ usage: chromo\_split infile action varscan\_location
 * `varscan_location`: the location to the VarScan jar.
 
 ## Options
-### Options Related to bam Files
+### Options Related to  the bam File
 * `--index`: if the bam file has not been indexed this flag should be passed.
 
 * `--sort`: if the bam file has not been sorted this flag should be passed.
@@ -37,6 +37,10 @@ This switch implies `--index`.
 working directory.
 
 ### Other Options
+* `--with-pipe`: instead of writing the intermediate files to disk, the commands
+are piped into each other, avoiding disk IO. A directory for bam files and
+mpileup files are not created.
+
 * `--keep-bam`: keeps the bam files for each region. The default behavior is
 to remove the bam file once the mpileup file has been created.
 
@@ -72,6 +76,11 @@ to keep the bam files created.
 This command will run `mpileup2snp` on the regions of `your.bam` and will keep
 the intermediate bam files that are created in the process.
 
+If you want the program to run a little faster, this example shows how to avoid
+disk IO.
+
+    chromo_split your.bam mpileup2snp /Users/Your/VarScan.jar --with-pipe
+
 Finally, if there isn't a `varscan.conf` in your working directory, you need to
 pass the absolute path to a `varscan.conf`
 
@@ -88,7 +97,7 @@ processed. For small bam files the three directories shouldn't be a problem, but
 processing a bigger bam file can produce a lot of additional data. If you would
 like to keep the bam file pass `--keep-bam`; if you would like to keep the
 mpileup files pass `--keep-mpileup`; finally, if you would like to keep all the
-files pass `--keep-all`.
+files pass `--keep-all`. The vcf files are _always_ kept.
 
 * The `varscan.conf` file is simply a file where each argument to pass to
 VarScan is on a single line.
