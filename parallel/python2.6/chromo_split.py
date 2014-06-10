@@ -217,7 +217,7 @@ if __name__ == '__main__':
         help="use if the file needs to be indexed")
     parser.add_option('-v', "--verbose", action="store_true", dest="verbose",
         help="output additional information")
-    args = parser.parse_args()
+    (args, opts) = parser.parse_args()
 
     LOCK = Lock()
     bam_file = pysam.Samfile(str(args.infile), "rb")
