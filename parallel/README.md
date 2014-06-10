@@ -11,6 +11,7 @@ expected to be in the current working directory.
 
 # Dependencies and Preliminaries
 * pysam: install with `pip install pysam`.
+* futures: install with `pip install futures`.
 * samtools: install from [SourceForge](http://samtools.sourceforge.net/) or with
 Homebrew.
 * VarScan: install from [SourceForge](http://varscan.sourceforge.net/).
