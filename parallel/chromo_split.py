@@ -9,7 +9,7 @@ except ImportError:
     print "please install pysam"
     sys.exit()
 from time import strftime
-from multiprocessing import Process
+from multiprocessing import Process, Lock
 from argparse import ArgumentParser
 
 def append_file_name(samfile, to_add):
@@ -51,12 +51,17 @@ def build_varscan_args(arg_f, mpileup_f):
     Parses a file containing the arguments for VarScan and returns a list for
     subprocess.open
     """
-    args = ["java", "-jar", varscan_location, action, mpileup_f.name]
+
+    args = ["java", "-jar", varscan_location, action]
+    if not with_pipe:
+        args.append(mpileup_f.name)
+    LOCK.acquire()
     for line in arg_f:
         args.append(line.strip('\n'))
 
     # rewind the file to the beginning for future calls to build_varscan_args
     arg_f.seek(0)
+    LOCK.release()
 
     return args
 
@@ -68,6 +73,11 @@ def run(region):
     region_bam = create_bam(region)
     region_mpileup = create_mpileup(region, region_bam)
     create_vcf(region, region_mpileup)
+
+    # close the files
+    region_bam.close()
+    region_mpileup.close()
+
 
 def create_bam(region):
     """
@@ -111,6 +121,32 @@ def create_vcf(region, mpileup_f):
     if verbose:
         print "> %s FINISHED vcf file for %s" % (strftime(t_format), region)
 
+    vcf_f.close()
+
+def run_with_pipe(region):
+    """
+    Runs the same commands as `run` but in a true pipeline
+    """
+    # it's important that the last command in the pipeline is evoked with
+    # `subprocess.call`. If it's not, the program will terminate without waiting
+    # for the processes to finish and you'll have to manually kill them.
+    if verbose:
+        print "> %s starting region %s" % (strftime(t_format), region)
+    bam = subprocess.Popen(["samtools", "view", "-b", bam_file.filename, region],
+        stdout=subprocess.PIPE)
+    mpileup = subprocess.Popen(["samtools", "mpileup", "-", "-o", "-"],
+        stdin=bam.stdout, stdout=subprocess.PIPE)
+    vcf_f = open(os.path.join(vcf_dir, region + ".vcf"), "w+")
+    subprocess.call(build_varscan_args(arg_f, ""), stdin=mpileup.stdout,
+        stdout=vcf_f)
+
+    # close the pipes
+    bam.stdout.close()
+    mpileup.stdout.close()
+
+    if verbose:
+        print "> %s FINISHED region %s" % (strftime(t_format), region)
+
 def concat_vcfs(vcf_dir):
     """
     Concats all the vcf files created into a new file in the same directory.
@@ -141,7 +177,10 @@ def run_processes(infile):
     if verbose:
         print "> parsing header sections"
     for region in parse_header(infile):
-        process = Process(target=run, args=(region,))
+        if with_pipe:
+            process = Process(target=run_with_pipe, args=(region,))
+        else:
+            process = Process(target=run, args=(region,))
         # to prevent orphans
         process.daemon = True
         processes.append(process)
@@ -163,6 +202,8 @@ if __name__ == '__main__':
     parser.add_argument("varscan_location",
         help="absolute path to the VarScan jar file")
     # options
+    parser.add_argument("--with-pipe", action="store_true", dest="with_pipe",
+        help="instead of writing to disk, the commands are piped")
     parser.add_argument("--keep-bam", action="store_true", dest="keep_bam",
         help="keeps the intermediate bam files", default=False)
     parser.add_argument("--keep-mpileup", action="store_true", default=False,
@@ -179,20 +220,18 @@ if __name__ == '__main__':
         help="output additional information")
     args = parser.parse_args()
 
+    LOCK = Lock()
+
     # global variables just to save some typing
     verbose = args.verbose
     keep_bam = args.keep_bam
     keep_mpileup = args.keep_mpileup
-    if args.keep_all:
-        keep_bam = True
-        keep_mpileup = True
-    if not os.path.exists(args.varscan_location):
-        print "> VarScan location (%s) not valid" % (args.varscan_location)
-        sys.exit()
-    else:
-        varscan_location = args.varscan_location
     action = args.action
+    with_pipe = args.with_pipe
     arg_f = args.varscan_conf
+    bam_file = pysam.Samfile(str(args.infile), "rb")
+
+    # test to see if a default varscan.conf should be used
     if arg_f == None:
         arg_f = open("varscan.conf", "r")
     # test for PERL5LIB before any work is done
@@ -201,9 +240,21 @@ if __name__ == '__main__':
     except KeyError:
         print "Please set your PERL5LIB environment variable"
         sys.exit()
+    # test for a valid VarScan before any work is done as well
+    if not os.path.exists(args.varscan_location):
+        print "> VarScan location (%s) not valid" % (args.varscan_location)
+        sys.exit()
+    else:
+        varscan_location = args.varscan_location
+    # handle `--keep-all`
+    if args.keep_all:
+        keep_bam = True
+        keep_mpileup = True
+    if with_pipe:
+        keep_bam = False
+        keep_mpileup = False
 
-    bam_file = pysam.Samfile(str(args.infile), "rb")
-    # append the name of the file to the dir to avoid name conflicts
+    # append the name of the file to the dirs to avoid name conflicts
     bam_dir = "bam_" + get_file_prefix(bam_file.filename)
     mpileup_dir = "mpileup_" + get_file_prefix(bam_file.filename)
     vcf_dir = "vcf_" + get_file_prefix(bam_file.filename)
@@ -223,16 +274,19 @@ if __name__ == '__main__':
         subprocess.call(["samtools", "index", bam_file.filename])
 
     # create directories to avoid a messy working directory
-    safe_mkdir(bam_dir)
-    safe_mkdir(mpileup_dir)
+    if not with_pipe:
+        safe_mkdir(bam_dir)
+        safe_mkdir(mpileup_dir)
     safe_mkdir(vcf_dir)
 
     run_processes(bam_file)
 
     # clean up (if necessary)
-    if not keep_bam:
+    if not keep_bam and not with_pipe:
         os.rmdir(bam_dir)
-    if not keep_mpileup:
+    if not keep_mpileup and not with_pipe:
         os.rmdir(mpileup_dir)
+    bam_file.close()
 
     concat_vcfs(vcf_dir)
+
