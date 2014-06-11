@@ -3,6 +3,8 @@
 import subprocess
 import os
 import sys
+from time import strftime
+from multiprocessing import Lock
 try:
     from concurrent.futures import ThreadPoolExecutor
 except ImportError:
@@ -12,9 +14,10 @@ try:
 except ImportError:
     print "please install pysam"
     sys.exit()
-from time import strftime
-from multiprocessing import Process, Lock
-from argparse import ArgumentParser
+try:
+    from argparse import ArgumentParser
+except ImportError:
+    print "please install argparse"
 
 def append_file_name(samfile, to_add):
     """
@@ -124,6 +127,7 @@ def create_vcf(region, mpileup_f):
         print "> %s FINISHED vcf file for %s" % (strftime(t_format), region)
 
     vcf_f.close()
+
 
 def run_with_pipe(region):
     """
