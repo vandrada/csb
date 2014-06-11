@@ -10,8 +10,11 @@ arguments to pass to VarScan are read from a `varscan.conf` file. This file is
 expected to be in the current working directory.
 
 # Dependencies and Preliminaries
+## Python Libraries
 * pysam: install with `pip install pysam`.
 * futures: install with `pip install futures`.
+* argparse: install with `pip install argparse`
+## Other Software
 * samtools: install from [SourceForge](http://samtools.sourceforge.net/) or with
 Homebrew.
 * VarScan: install from [SourceForge](http://varscan.sourceforge.net/).
@@ -39,11 +42,11 @@ working directory.
 
 ### Other Options
 * `--with-pipe`: instead of writing the intermediate files to disk, the commands
-are piped into each other, avoiding disk IO. A directory for bam files and
+are piped into each other, avoiding disk IO. The directories for bam files and
 mpileup files are not created.
 
 * `--n-procs`: the total number of concurrent processes to run at a time. The
-default is the total number of processes.
+default is the total number of processors.
 
 * `--keep-bam`: keeps the bam files for each region. The default behavior is
 to remove the bam file once the mpileup file has been created.
@@ -84,6 +87,11 @@ If you want the program to run a little faster, this example shows how to avoid
 disk IO.
 
     chromo_split your.bam mpileup2snp /Users/Your/VarScan.jar --with-pipe
+
+If you want the number of processes to be limited to two, you can run the
+program like this:
+
+    chromo_split your.bam mpileup2snp /Users/You/VarScan.jar --n-procs=2
 
 Finally, if there isn't a `varscan.conf` in your working directory, you need to
 pass the absolute path to a `varscan.conf`
