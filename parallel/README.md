@@ -25,9 +25,9 @@ Homebrew. Be sure to export `PERL5LIB`.
 usage: chromo\_split infile action varscan\_location
 
 ## Arguments
-* `infile`: the bam file to process.
+* `infile`: the __absolute__ path of the bam file to process.
 * `action`: the action for VarScan to run.
-* `varscan_location`: the location to the VarScan jar.
+* `varscan_location`: the __absolute__ path to the VarScan jar.
 
 ## Options
 ### Options Related to  the bam File
