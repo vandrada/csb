@@ -169,13 +169,9 @@ def run_processes(infile):
     """
     Function to spawn and join the processes
     """
-    # Note: I debated for a while whether to use multiprocessing or threading,
-    # ultimately I decided on the multiprocessing module since each process runs
-    # in its own memory space and there aren't any shared variables.  Also, I
-    # read somewhere that processes are cheaper on Linux and OS X than threads.
-    # I don't know how true that is, and with that being said it's bad that that
-    # made an impact on my decision, but that's the truth.
-    processes = []
+    # awesome ThreadPoolExecutor from Python 3. Allows you to control how many
+    # concurrent processes are running at once. Useful in this program since
+    # each region can use a lot of memory.
     if args.verbose:
         print "> parsing header sections"
     with ThreadPoolExecutor(max_workers=args.n_procs) as executor:
