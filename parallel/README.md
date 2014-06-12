@@ -22,7 +22,9 @@ Homebrew.
 Homebrew. Be sure to export `PERL5LIB`.
 
 # Synopsis
-usage: chromo\_split infile action varscan\_location
+usage:
+
+    chromo_split infile action varscan_location
 
 ## Arguments
 * `infile`: the __absolute__ path of the bam file to process.
@@ -30,7 +32,7 @@ usage: chromo\_split infile action varscan\_location
 * `varscan_location`: the __absolute__ path to the VarScan jar.
 
 ## Options
-### Options Related to  the bam File
+### Options Related to the bam File
 * `--index`: if the bam file has not been indexed this flag should be passed.
 
 * `--sort`: if the bam file has not been sorted this flag should be passed.
@@ -63,13 +65,13 @@ printed out while the program is running.
 # Examples
 The most basic usage is:
 
-    chromo_split your.bam mpileup2snp /Users/You/VarScan.jar
+    chromo_split your.bam mpileup2snp /home/You/VarScan.jar
 
 This command will run `mpileup2snp` on the regions of `your.bam`.
 
 There is also a `--verbose` flag.
 
-    chromo_split your.bam /mpileup2snp Users/You/VarScan.jar --verbose
+    chromo_split your.bam mpileup2snp /home/You/VarScan.jar --verbose
 
 This command will run `mpileup2snp` on the regions of `your.bam` and print
 additional information as each step completes. You can also specify `--verbose`
@@ -78,7 +80,7 @@ with `-v`.
 If you would like to keep some of the intermediate files, this example shows how
 to keep the bam files created.
 
-    chromo_split your.bam mpileup2snp /Users/You/VarScan.jar --keep-bam
+    chromo_split your.bam mpileup2snp /home/You/VarScan.jar --keep-bam
 
 This command will run `mpileup2snp` on the regions of `your.bam` and will keep
 the intermediate bam files that are created in the process.
@@ -86,17 +88,17 @@ the intermediate bam files that are created in the process.
 If you want the program to run a little faster, this example shows how to avoid
 disk IO.
 
-    chromo_split your.bam mpileup2snp /Users/Your/VarScan.jar --with-pipe
+    chromo_split your.bam mpileup2snp /home/Your/VarScan.jar --with-pipe
 
 If you want the number of processes to be limited to two, you can run the
 program like this:
 
-    chromo_split your.bam mpileup2snp /Users/You/VarScan.jar --n-procs=2
+    chromo_split your.bam mpileup2snp /home/You/VarScan.jar --n-procs=2
 
 Finally, if there isn't a `varscan.conf` in your working directory, you need to
 pass the absolute path to a `varscan.conf`
 
-    chromo_split your.bam mpileup2snp /Users/You/VarScan.jar --varscan-conf=/Users/You/varscan.conf
+    chromo_split your.bam mpileup2snp /home/You/VarScan.jar --varscan-conf=/home/You/varscan.conf
 
 # Notes
 * The program creates three directories in your working directory with the
@@ -113,3 +115,46 @@ files pass `--keep-all`. The vcf files are _always_ kept.
 
 * The `varscan.conf` file is simply a file where each argument to pass to
 VarScan is on a single line.
+
+# Batch Processing bam Files
+In order to process multiple bam file at once, there is the program `dispatch`.
+
+## Description
+Processes all the bam files in a given directory, calling `chromo_split` on each
+one.
+
+## Synopsis
+usage:
+
+    dispatch directory varscan_action varscan_location
+
+### Arguments
+* `directory`: the __absolute__ path to the directory to process.
+* `varscan_action`: the action for VarScan to run.
+* `varscan_location`: the location of the VarScan jar.
+
+### Options
+* `--n-bam`: the number of bam files to process in parallel. The default value
+is two.
+* `--n-regions`: the number of regions in each bam file to process in parallel.
+The default value is two.
+
+## Examples
+
+    dispatch /home/You/DirectoryWithBams mpileup2snp /home/You/VarScan.jar
+
+Will run `chromo_split` on two bam files in `DirectoryWithBams` in parallel.
+`chromo_split` will process two regions in parallel, resulting in a total of
+four processes running.
+
+    dispatch /home/You/DirectoryWithBams mpileup2snp /home/You/VarScan.jar --n-bam=3
+
+Will run `chromo_split` on three bam files in `DirectoryWithBams` in parallel.
+`chormo_split` will process two regions in parallel, resulting in a total of six
+processes running.
+
+## Notes
+* A `varscan.conf` is expected to be in the directory with the bam files.
+
+* The arguments passed to `chromo_split` by default are: `--verbose`,
+`--with-pipe`, and `--n-procs=2`.
