@@ -228,11 +228,11 @@ if __name__ == '__main__':
     if arg_f == None:
         arg_f = open("varscan.conf", "r")
     # test for PERL5LIB before any work is done
-    try:
-        os.environ['PERL5LIB']
-    except KeyError:
-        print "Please set your PERL5LIB environment variable"
-        sys.exit()
+    #try:
+    #    os.environ['PERL5LIB']
+    #except KeyError:
+    #    print "Please set your PERL5LIB environment variable"
+    #    sys.exit()
     # test for a valid VarScan before any work is done as well
     if not os.path.exists(args.varscan_location):
         print "> VarScan location (%s) not valid" % (args.varscan_location)
@@ -281,5 +281,4 @@ if __name__ == '__main__':
         os.rmdir(mpileup_dir)
     bam_file.close()
 
-    concat_vcfs(vcf_dir)
-
+#    concat_vcfs(vcf_dir)
