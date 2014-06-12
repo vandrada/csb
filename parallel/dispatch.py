@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 """
-Calls chromo_split on each bam file in the directory and adds them to the queue.
-The default number of regions to process is 2 and the default number of bam
-files to process is 2 as well, resulting in 4 concurrent processes at once.
+Calls chromo_split on each bam file in the directory and adds them to the pool.
+The maximum number of regions to process is 2 and the default maxiumum number of
+bam files to process is 2 as well, resulting in 4 concurrent processes at once.
 """
 
 import os
