@@ -19,6 +19,9 @@ try:
 except ImportError:
     print "please install argparse"
 
+################################################################################
+#                              utility functions
+################################################################################
 def append_file_name(samfile, to_add):
     """
     Creates a new file name with a string appended
@@ -78,6 +81,9 @@ def build_args(conf_f, arg_param, prog):
 
     return args
 
+################################################################################
+#                               actual functions
+################################################################################
 def run(region):
     """
     Extracts the specific region and creates a mpileup file from that
@@ -133,7 +139,6 @@ def create_vcf(region, mpileup_f):
         print "> %s FINISHED vcf file for %s" % (strftime(t_format), region)
 
     vcf_f.close()
-
 
 def run_with_pipe(region):
     """
