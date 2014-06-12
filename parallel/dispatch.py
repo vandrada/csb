@@ -28,7 +28,7 @@ for entry in os.listdir(args.directory):
         if path.split('.')[-1] == 'bam':
             bam_files.append(path)
 
-with ThreadPoolExecutor(num_workers=args.n_bam) as executor:
+with ThreadPoolExecutor(max_workers=args.n_bam) as executor:
     for bam in bam_files:
         executor.submit(subprocess.call,
             ["chromo_split", bam, args.varscan_action, args.varscan_location,
