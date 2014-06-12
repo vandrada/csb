@@ -6,9 +6,10 @@ The default number of regions to process is 2 and the default number of bam
 files to process is 2 as well, resulting in 4 concurrent processes at once.
 """
 
+import os
+import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from argparse import ArgumentParser
-import os
 
 parser = ArgumentParser()
 parser.add_argument("directory", help="the directory to process")
