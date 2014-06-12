@@ -53,21 +53,27 @@ def parse_header(samfile):
         print "> found sections: %s" % (', '.join(item for item in sections))
     return sections
 
-def build_varscan_args(arg_f, mpileup_f):
+def build_args(conf_f, arg_param, prog):
     """
     Parses a file containing the arguments for VarScan and returns a list for
     subprocess.open
+    : param conf_f: the file containing the argruments to add
+    : arg_param : the name of the file to include
+    : param prog : the program to build for
     """
-
-    args = ["java", "-jar", varscan_location, action]
+    args = []
+    if prog == "VarScan":
+        args = ["java", "-jar", varscan_location, action]
+    if prog == "samtools":
+        args = ["samtools", "mpileup"]
     if not with_pipe:
-        args.append(mpileup_f.name)
+        args.append(arg_param.name)
     LOCK.acquire()
-    for line in arg_f:
+    for line in conf_f:
         args.append(line.strip('\n'))
 
     # rewind the file to the beginning for future calls to build_varscan_args
-    arg_f.seek(0)
+    conf_f.seek(0)
     LOCK.release()
 
     return args
@@ -105,7 +111,7 @@ def create_mpileup(region, bam_f):
     mpileup_f = open(os.path.join(mpileup_dir, region + ".mpileup"), "w+b")
     if args.verbose:
         print "> %s creating %s" % (strftime(t_format), mpileup_f.name)
-    subprocess.call(["samtools", "mpileup", bam_f.name], stdout=mpileup_f)
+    subprocess.call(build_args(sam_conf, bam_f, "samtools"), stdout=mpileup_f)
     if not args.keep_bam:
         os.remove(bam_f.name)
     if args.verbose:
@@ -120,7 +126,7 @@ def create_vcf(region, mpileup_f):
     vcf_f = open(os.path.join(vcf_dir, region + ".vcf"), "w+")
     if args.verbose:
         print "> %s creating vcf for %s" % (strftime(t_format), region)
-    subprocess.call(build_varscan_args(arg_f, mpileup_f), stdout=vcf_f)
+    subprocess.call(build_args(var_conf, mpileup_f, "VarScan"), stdout=vcf_f)
     if not args.keep_mpileup:
         os.remove(mpileup_f.name)
     if args.verbose:
@@ -207,7 +213,9 @@ if __name__ == '__main__':
     parser.add_argument("--keep-all", action="store_true", dest="keep_all",
         help="keeps bam and mpileup files")
     parser.add_argument("--varscan-conf", dest="varscan_conf", default=None,
-        help="the location of varscan.conf (defaults to the working directory)")
+        help="the location of varscan.conf, defaults to the working directory")
+    parser.add_argument("--samtools-conf", dest="samtools_conf", default=None,
+        help="the location of samtools.conf, defaults to the working directory")
     parser.add_argument("--sort", action="store_true", dest="sort",
         help="use if the file needs to be sorted (implies --index)")
     parser.add_argument("--index", action="store_true", dest="index",
@@ -222,11 +230,14 @@ if __name__ == '__main__':
     # global variables just to save some typing
     action = args.action
     with_pipe = args.with_pipe
-    arg_f = args.varscan_conf
+    var_conf = args.varscan_conf
+    sam_conf = args.samtools_conf
 
-    # test to see if a default varscan.conf should be used
-    if arg_f == None:
-        arg_f = open("varscan.conf", "r")
+    # test to see if a default configuration files should be used
+    if var_conf == None:
+        var_conf = open("varscan.conf", "r")
+    if sam_conf == None:
+        sam_conf = open("samtools.conf", "r")
     # test for PERL5LIB before any work is done
     #try:
     #    os.environ['PERL5LIB']
