@@ -1,10 +1,31 @@
 #!/usr/bin/env python
 
+"""
+Processes a bam file by splitting it into it's regions and processing each
+region in parallel. The workflow for each region is currently:
+
+    [samtools view] -> [samtools mpileup] -> [varscan]
+
+Each region is added to a thread pool and the number of threads to run in
+parallel can be controlled with a command line argument. There are two
+'runnable' functions: one that writes to disk--and is thus slower--and one that
+uses pipes; once again, which one is used can be determined by a command line
+argument. The program needs two different configuration files, one to pass
+arguments to `samtools mpileup` and another for VarScan. I tried to make this
+program as modular as possible, the only function that I can think of that is
+too monolithic is run_with_pipe.
+
+TODO
+* improve comments
+* use expanduser?
+* improve variable names
+"""
+
 import subprocess
 import os
 import sys
 from time import strftime
-from multiprocessing import Lock, cpu_count
+from multiprocessing import Lock
 try:
     import pysam
     from argparse import ArgumentParser
@@ -16,24 +37,28 @@ except ImportError:
 ################################################################################
 #                              utility functions
 ################################################################################
-def append_file_name(samfile, to_add):
+def append_file_name(file_name, to_add):
     """
-    Creates a new file name with a string appended
+    Creates a new file name with a string appended.
+    :param file_name: the name of the file to modify
+    :param to_add: the string to add to file_name
     """
-    (prefix, _) = samfile.filename.split(".")
+    (prefix, _) = file_name.split(".")
     return prefix + "." + to_add
 
-def get_file_prefix(samfile):
+def get_file_prefix(file_name):
     """
     Returns the file name without the extension
-    i.e ~/User/Desktop/hello.txt -> hello
+    i.e ~/User/Desktop/hello.txt -> hello.
+    :param file_name: the name of the file to remove the extension from
     """
-    return samfile.split('/')[-1].split('.')[0]
+    return file_name.split('/')[-1].split('.')[0]
 
 def safe_mkdir(dirname):
     """
     Attempts to make a directory with the name `dirname`. If a directory already
     exists with that name, the program exits gracefully with a nice message.
+    :param dirname: the name of the directory make
     """
     try:
         os.mkdir(dirname)
@@ -43,39 +68,49 @@ def safe_mkdir(dirname):
 
 def parse_header(samfile):
     """
-    Returns the sections from 'samfile'
+    Returns the sections from 'samfile'.
+    :param samfile: the sam file to parse
     """
     sections = [SQ['SN'] for SQ in samfile.header['SQ']]
     if args.verbose:
         print "> found sections: %s" % (', '.join(item for item in sections))
     return sections
 
-def build_varscan_args(arg_f, mpileup_f):
+def build_args(conf_file, arg_param, prog):
     """
-    Parses a file containing the arguments for VarScan and returns a list for
+    Parses a file containing the arguments for a command and returns a list for
     subprocess.open
+    :param conf_file: the file containing the argruments to add
+    :param arg_param: the name of the file to include in the command
+    :param prog: the program to build for
     """
-
-    args = ["java", "-jar", varscan_location, action]
+    args = []
+    if prog == "VarScan":
+        args = ["java", "-jar", varscan_location, action]
+    if prog == "samtools":
+        args = ["samtools", "mpileup"]
     if not with_pipe:
-        args.append(mpileup_f.name)
+        args.append(arg_param.name)
+    # acquire the lock to avoid to processes from reading the file at the same
+    # time
     LOCK.acquire()
-    for line in arg_f:
+    for line in conf_file:
         args.append(line.strip('\n'))
 
-    # rewind the file to the beginning for future calls to build_varscan_args
-    arg_f.seek(0)
+    # rewind the file to the beginning for future calls to build_args
+    conf_file.seek(0)
     LOCK.release()
 
     return args
 
 ################################################################################
-#                     functions that do the heavy lifting
+#                               actual functions
 ################################################################################
 def run(region):
     """
     Extracts the specific region and creates a mpileup file from that
     region, in turn this mpileup file is used to create a vcf file.
+    :param region: the region to process
     """
     region_bam = create_bam(region)
     region_mpileup = create_mpileup(region, region_bam)
@@ -87,6 +122,8 @@ def run(region):
 def create_bam(region):
     """
     Creates a bam file from the passed region
+    :param region: the region to create a bam file from
+    :return: the bam file
     """
     bam_f = open(os.path.join(bam_dir, region + ".bam"), "w+b")
     if args.verbose:
@@ -101,11 +138,14 @@ def create_bam(region):
 def create_mpileup(region, bam_f):
     """
     Creates a mpileup file from the passed bam file
+    :param region: the region to create the mpileup file for
+    :param bam_f: the bam file to use
+    :return: the mpileup file
     """
     mpileup_f = open(os.path.join(mpileup_dir, region + ".mpileup"), "w+b")
     if args.verbose:
         print "> %s creating %s" % (strftime(t_format), mpileup_f.name)
-    subprocess.call(["samtools", "mpileup", bam_f.name], stdout=mpileup_f)
+    subprocess.call(build_args(sam_conf, bam_f, "samtools"), stdout=mpileup_f)
     if not args.keep_bam:
         os.remove(bam_f.name)
     if args.verbose:
@@ -116,11 +156,13 @@ def create_mpileup(region, bam_f):
 def create_vcf(region, mpileup_f):
     """
     Runs VarScan on the mpileup file
+    :param region: the region to create the vcf file for
+    :param mpileup_f: the mpileup file to use
     """
     vcf_f = open(os.path.join(vcf_dir, region + ".vcf"), "w+")
     if args.verbose:
         print "> %s creating vcf for %s" % (strftime(t_format), region)
-    subprocess.call(build_varscan_args(arg_f, mpileup_f), stdout=vcf_f)
+    subprocess.call(build_args(var_conf, mpileup_f, "VarScan"), stdout=vcf_f)
     if not args.keep_mpileup:
         os.remove(mpileup_f.name)
     if args.verbose:
@@ -128,10 +170,10 @@ def create_vcf(region, mpileup_f):
 
     vcf_f.close()
 
-
 def run_with_pipe(region):
     """
     Runs the same commands as `run` but in a true pipeline
+    :param region: the region to create the vcf file for
     """
     # it's important that the last command in the pipeline is evoked with
     # `subprocess.call`. If it's not, the program will terminate without waiting
@@ -156,6 +198,7 @@ def run_with_pipe(region):
 def concat_vcfs(vcf_dir):
     """
     Concats all the vcf files created into a new file in the same directory.
+    :vcf_dir: the directory containing the vcf files
     """
     arg_list = ["vcf-concat"]
     for vcf in os.listdir(vcf_dir):
@@ -172,10 +215,11 @@ def concat_vcfs(vcf_dir):
 def run_processes(infile):
     """
     Function to spawn and join the processes
+    :param infile: the bam file to process
     """
     # awesome ThreadPoolExecutor from Python 3. Allows you to control how many
     # concurrent processes are running at once. Useful in this program since
-    # each region can use a lot of memory.
+    # each region can use a lot of memory and CPU.
     if args.verbose:
         print "> parsing header sections"
     with ThreadPoolExecutor(max_workers=args.n_procs) as executor:
@@ -191,28 +235,31 @@ if __name__ == '__main__':
     # arguments
     parser.add_argument("infile",
         help="absolute path to the bam file to process")
-    parser.add_argument("action",
-        help="the action for VarScan to run")
+    parser.add_argument("action", help="the action for VarScan to run")
     parser.add_argument("varscan_location",
         help="absolute path to the VarScan jar file")
-    # options
+    # options related to bam files
+    parser.add_argument("--sort", action="store_true", dest="sort",
+        help="use if the file needs to be sorted (implies --index)")
+    parser.add_argument("--index", action="store_true", dest="index",
+        help="use if the file needs to be indexed")
+    # options related to configuration files
+    parser.add_argument("--varscan-conf", dest="varscan_conf", default=None,
+        help="the location of varscan.conf, defaults to the working directory")
+    parser.add_argument("--samtools-conf", dest="samtools_conf", default=None,
+        help="the location of samtools.conf, defaults to the working directory")
+    # options related to this program
     parser.add_argument("--with-pipe", action="store_true", dest="with_pipe",
         help="instead of writing to disk, the commands are piped")
-    parser.add_argument("--n-procs", dest="n_procs", default=cpu_count,
-        type=int, help="the number of processes to run at once")
+    parser.add_argument("--n-procs", dest="n_procs", default=None, type=int,
+        help="the number of processes to run at once")
     parser.add_argument("--keep-bam", action="store_true", dest="keep_bam",
         help="keeps the intermediate bam files", default=False)
     parser.add_argument("--keep-mpileup", action="store_true", default=False,
         dest="keep_mpileup", help="keeps the intermediate mpileup files")
     parser.add_argument("--keep-all", action="store_true", dest="keep_all",
         help="keeps bam and mpileup files")
-    parser.add_argument("--varscan-conf", dest="varscan_conf", default=None,
-        help="the location of varscan.conf (defaults to the working directory)")
-    parser.add_argument("--sort", action="store_true", dest="sort",
-        help="use if the file needs to be sorted (implies --index)")
-    parser.add_argument("--index", action="store_true", dest="index",
-        help="use if the file needs to be indexed")
-    parser.add_argument('-v', "--verbose", action="store_true", dest="verbose",
+    parser.add_argument("--verbose", "-v", action="store_true", dest="verbose",
         help="output additional information")
     args = parser.parse_args()
 
@@ -222,11 +269,14 @@ if __name__ == '__main__':
     # global variables just to save some typing
     action = args.action
     with_pipe = args.with_pipe
-    arg_f = args.varscan_conf
+    var_conf = args.varscan_conf
+    sam_conf = args.samtools_conf
 
-    # test to see if a default varscan.conf should be used
-    if arg_f == None:
-        arg_f = open("varscan.conf", "r")
+    # test to see if a default configuration files should be used
+    if var_conf == None:
+        var_conf = open("varscan.conf", "r")
+    if sam_conf == None:
+        sam_conf = open("samtools.conf", "r")
     # test for PERL5LIB before any work is done
     #try:
     #    os.environ['PERL5LIB']
@@ -256,7 +306,7 @@ if __name__ == '__main__':
     # get the file ready for processing (if necessary)
     if args.sort:
         args.index = True
-        sorted_file = append_file_name(bam_file, "sorted")
+        sorted_file = append_file_name(bam_file.filename, "sorted")
         if args.verbose:
             print "> sorting %s for indexing" % (bam_file.filename)
             print "> creating %s" % (sorted_file)
