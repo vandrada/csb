@@ -4,21 +4,18 @@ import subprocess
 import os
 import sys
 from time import strftime
-from multiprocessing import Lock
-try:
-    from concurrent.futures import ThreadPoolExecutor
-except ImportError:
-    print "please install futures"
+from multiprocessing import Lock, cpu_count
 try:
     import pysam
-except ImportError:
-    print "please install pysam"
-    sys.exit()
-try:
     from argparse import ArgumentParser
+    from concurrent.futures import ThreadPoolExecutor
 except ImportError:
-    print "please install argparse"
+    print "please install the needed python modules"
+    sys.exit()
 
+################################################################################
+#                              utility functions
+################################################################################
 def append_file_name(samfile, to_add):
     """
     Creates a new file name with a string appended
@@ -72,6 +69,9 @@ def build_varscan_args(arg_f, mpileup_f):
 
     return args
 
+################################################################################
+#                     functions that do the heavy lifting
+################################################################################
 def run(region):
     """
     Extracts the specific region and creates a mpileup file from that
@@ -198,8 +198,8 @@ if __name__ == '__main__':
     # options
     parser.add_argument("--with-pipe", action="store_true", dest="with_pipe",
         help="instead of writing to disk, the commands are piped")
-    parser.add_argument("--n-procs", dest="n_procs", default=None, type=int,
-        help="the number of processes to run at once")
+    parser.add_argument("--n-procs", dest="n_procs", default=cpu_count,
+        type=int, help="the number of processes to run at once")
     parser.add_argument("--keep-bam", action="store_true", dest="keep_bam",
         help="keeps the intermediate bam files", default=False)
     parser.add_argument("--keep-mpileup", action="store_true", default=False,
