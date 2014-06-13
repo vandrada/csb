@@ -38,12 +38,9 @@ usage:
 * `--sort`: if the bam file has not been sorted this flag should be passed.
 This switch implies `--index`.
 
-### Options Related to Configuration Files
+### Options Related to VarScan
 * `--varscan-conf`: the location of `varscan.conf` if one is not in the current
 working directory.
-
-* `--samtools-conf`: the location of `samtools.conf` if one is not in the
-current working directory.
 
 ### Other Options
 * `--with-pipe`: instead of writing the intermediate files to disk, the commands
@@ -146,15 +143,15 @@ The default value is two.
 
     dispatch /home/You/DirectoryWithBams mpileup2snp /home/You/VarScan.jar
 
-Will run `chromo_split` on the bam files in `DirectoryWithBams` in parallel, two
-at a time.  `chromo_split` will process two regions in parallel, resulting in a
-maximum total of four processes running.
+Will run `chromo_split` on two bam files in `DirectoryWithBams` in parallel.
+`chromo_split` will process two regions in parallel, resulting in a total of
+four processes running.
 
     dispatch /home/You/DirectoryWithBams mpileup2snp /home/You/VarScan.jar --n-bam=3
 
-Will run `chromo_split` on three bam files in `DirectoryWithBams` in parallel,
-two at a time.  `chormo_split` will process two regions in parallel,
-resulting in a maximum total of six processes running.
+Will run `chromo_split` on three bam files in `DirectoryWithBams` in parallel.
+`chormo_split` will process two regions in parallel, resulting in a total of six
+processes running.
 
 ## Notes
 * A `varscan.conf` is expected to be in the directory with the bam files.

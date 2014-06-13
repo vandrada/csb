@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 """
-Calls chromo_split on each bam file in the directory and adds them to the pool.
-The maximum number of regions to process is two and the default maxiumum number
-of bam files to process is two as well, resulting in four concurrent processes
-at once.
+Calls chromo_split on each bam file in the directory and adds them to the queue.
+The default number of regions to process is 2 and the default number of bam
+files to process is 2 as well, resulting in 4 concurrent processes at once.
 """
 
 import os
@@ -24,14 +23,12 @@ args = parser.parse_args()
 
 bam_files = []
 
-# find all the bam files
 for entry in os.listdir(args.directory):
     path = os.path.join(args.directory, entry)
     if not os.path.isdir(path):
         if path.split('.')[-1] == 'bam':
             bam_files.append(path)
 
-# add each bam file to the pool
 with ThreadPoolExecutor(max_workers=args.n_bam) as executor:
     for bam in bam_files:
         executor.submit(subprocess.call,
