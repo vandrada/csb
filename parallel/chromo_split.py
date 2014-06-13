@@ -1,23 +1,38 @@
 #!/usr/bin/env python
 
+"""
+Processes a bam file by splitting it into it's regions and processing each
+region in parallel. The workflow for each region is currently:
+
+    [samtools view] -> [samtools mpileup] -> [varscan]
+
+Each region is added to a thread pool and the number of threads to run in
+parallel can be controlled with a command line argument. There are two
+'runnable' functions: one that writes to disk--and is thus slower--and one that
+uses pipes; once again, which one is used can be determined by a command line
+argument. The program needs two different configuration files, one to pass
+arguments to `samtools mpileup` and another for VarScan. I tried to make this
+program as modular as possible, the only function that I can think of that is
+too monolithic is run_with_pipe.
+
+TODO
+* improve comments
+* use expanduser?
+* improve variable names
+"""
+
 import subprocess
 import os
 import sys
 from time import strftime
 from multiprocessing import Lock
 try:
+    import pysam
+    from argparse import ArgumentParser
     from concurrent.futures import ThreadPoolExecutor
 except ImportError:
     print "please install futures"
-try:
-    import pysam
-except ImportError:
-    print "please install pysam"
     sys.exit()
-try:
-    from argparse import ArgumentParser
-except ImportError:
-    print "please install argparse"
 
 def append_file_name(samfile, to_add):
     """
