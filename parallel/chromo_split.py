@@ -4,7 +4,7 @@
 Processes a bam file by splitting it into it's regions and processing each
 region in parallel. The workflow for each region is currently:
 
-    [samtools view] -> [samtools mpileup] -> [varscan]
+    [samtools view] -> [samtools mpileup] -> [VarScan]
 
 Each region is added to a thread pool and the number of threads to run in
 parallel can be controlled with a command line argument. There are two
@@ -13,12 +13,15 @@ uses pipes; once again, which one is used can be determined by a command line
 argument. The program needs two different configuration files, one to pass
 arguments to `samtools mpileup` and another for VarScan. I tried to make this
 program as modular as possible, the only function that I can think of that is
-too monolithic is run_with_pipe.
+too monolithic is run_with_pipe, but that's just my opinion.
 
 TODO
 * improve comments
 * use expanduser?
 * improve variable names
+* allow for stderr of programs to go to dev/null
+* add a 'restart' command
+* add option for samtools.conf
 """
 
 import subprocess
@@ -33,6 +36,10 @@ try:
 except ImportError:
     print "please install futures"
     sys.exit()
+
+################################################################################
+#                              utility functions
+################################################################################
 
 def append_file_name(samfile, to_add):
     """
@@ -87,6 +94,9 @@ def build_varscan_args(arg_f, mpileup_f):
 
     return args
 
+################################################################################
+#                     functions that do the heavy lifting
+################################################################################
 def run(region):
     """
     Extracts the specific region and creates a mpileup file from that
