@@ -79,16 +79,16 @@ def parse_header(samfile):
         print "> found sections: %s" % (', '.join(item for item in sections))
     return sections
 
-def build_varscan_args(mpileup_f):
+def build_varscan_args(mpileup_file_name_name):
     """
     Parses a file containing the arguments for VarScan and returns a list for
     subprocess.open
-    :param mpileup_f: the name of the mpileup file to add to use as an argument
+    :param mpileup_file_name: the name of the mpileup file to add as an argument
     """
 
     args = ["java", "-jar", varscan_location, action]
     if not with_pipe:
-        args.append(mpileup_f)
+        args.append(mpileup_file_name)
     LOCK.acquire()
     for line in varscan_conf:
         args.append(line.strip('\n'))
@@ -97,15 +97,16 @@ def build_varscan_args(mpileup_f):
 
     return args
 
-def build_samtools_args(bam_f):
+def build_samtools_args(bam_file_name):
     """
     Parses a file containing the arguments for samtools mpileup and returns a
     list for subprocess.open. Unfortunately, it's very similar to
     build_varscan_args.
+    :param bam_file_name: the name of the bam file to add as an argument
     """
     args = ["samtools", "mpileup"]
     if not with_pipe:
-        args.append(bam_f)
+        args.append(bam_file_name)
     else:
         args.extend(["-", "-o", "-"])
 
