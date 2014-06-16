@@ -1,5 +1,5 @@
 # Name
-[Parallel Region Analyzer](https://bitbucket.org/vandrada/csb/downloads)
+###[Parallel Region Analyzer](https://bitbucket.org/vandrada/csb/downloads)###
 
 # Description
 Processes a bam file by spawning a process to handle each region in the bam
@@ -22,7 +22,7 @@ directory.
   <sub> \* only if using a Python version &lt; 3 \* </sub>
 * argparse: install with `pip install argparse`.
 
-  <sub> \*only if using a Python version &lt; 2.7 \* </sub>
+  <sub> \* only if using a Python version &lt; 2.7 \* </sub>
 ## Other Software
 * samtools: install from [SourceForge](http://samtools.sourceforge.net/) or with
 Homebrew if using OS X.
@@ -57,10 +57,10 @@ current working directory
 ### Other Options
 * `--with-pipe`: instead of writing the intermediate files to disk, the commands
 are piped into each other, avoiding disk IO. The directories for bam files and
-mpileup files are not created.
+mpileup files are not created. Equivalent to
 
 * `--n-procs`: the total number of concurrent processes to run at a time. The
-default is the two processes.
+default is two processes.
 
 * `--keep-bam`: keeps the bam files for each region. The default behavior is
 to remove the bam file once the mpileup file has been created.
