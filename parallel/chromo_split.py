@@ -43,8 +43,10 @@ except ImportError:
 def append_file_name(file_name, to_add):
     """
     Creates a new file name with a string appended
+    i.e append_file_name(hello.txt, world) -> hello.world
     :param file_name: the name of the file (as a string)
     :param to_add: the string to add to file_name
+    :return: the prefix with to_add appened
     """
     (prefix, _) = file_name.split(".")
     return prefix + "." + to_add
@@ -54,6 +56,7 @@ def get_file_prefix(file_name):
     Returns the file name without the extension
     i.e ~/User/Desktop/hello.txt -> hello
     :param file_name: the name of the file to extract the extension from
+    :return: the file prefix
     """
     return file_name.split('/')[-1].split('.')[0]
 
@@ -73,6 +76,7 @@ def parse_header(samfile):
     """
     Returns the sections from 'samfile'
     :param samfile: the bam file to parse
+    :return: the sections from the header of the bam file
     """
     sections = [SQ['SN'] for SQ in samfile.header['SQ']]
     if args.verbose:
@@ -84,6 +88,7 @@ def build_varscan_args(mpileup_file_name):
     Parses a file containing the arguments for VarScan and returns a list for
     subprocess.open
     :param mpileup_file_name: the name of the mpileup file to add as an argument
+    :return: a list of arguments for subprocess
     """
 
     args = ["java", "-jar", varscan_location, action]
@@ -103,6 +108,7 @@ def build_samtools_args(bam_file_name):
     list for subprocess.open. Unfortunately, it's very similar to
     build_varscan_args.
     :param bam_file_name: the name of the bam file to add as an argument
+    :return: a list of arguments for subprocess
     """
     args = ["samtools", "mpileup"]
     if not with_pipe:
@@ -138,6 +144,7 @@ def create_bam(region):
     """
     Creates a bam file from the passed region
     :param region: the region to make a bam file from
+    :return: a file object for the bam file
     """
     bam_f = open(os.path.join(bam_dir, region + ".bam"), "w+b")
     if args.verbose:
@@ -154,6 +161,7 @@ def create_mpileup(region, bam_f):
     Creates a mpileup file from the passed bam file
     :param region: the region to process
     :param bam_f: the bam file to make the mpileup file from
+    :return: a file object for the mpileup file
     """
     mpileup_f = open(os.path.join(mpileup_dir, region + ".mpileup"), "w+b")
     if args.verbose:
@@ -219,9 +227,9 @@ def concat_vcfs(vcf_dir):
         print "%s running vcf_concat on the files in %s" %\
             (strftime(t_format), vcf_dir)
     # the new file has to be created after the relevant vcf files have been
-    # added to the list, if it's created before very bad things happen
-    vcf_file = open(os.path.join(vcf_dir, get_file_prefix(BAM_FILE.filename) +
-        ".vcf"), "w+")
+    # added to the list; if it's created before very bad things happen
+    vcf_file = open(os.path.join(vcf_dir,
+        get_file_prefix(BAM_FILE.filename) + ".vcf"), "w+")
     subprocess.call(arg_list, stdout=vcf_file)
 
     vcf_file.close()
@@ -261,7 +269,7 @@ if __name__ == '__main__':
     # options
     parser.add_argument("--with-pipe", action="store_true", dest="with_pipe",
         help="instead of writing to disk, the commands are piped")
-    parser.add_argument("--n-procs", dest="n_procs", default=None, type=int,
+    parser.add_argument("--n-procs", dest="n_procs", default=2, type=int,
         help="the number of processes to run at once")
     parser.add_argument("--keep-bam", action="store_true", dest="keep_bam",
         help="keeps the intermediate bam files", default=False)
@@ -294,11 +302,11 @@ if __name__ == '__main__':
     if samtools_conf == None:
         samtools_conf = open("samtools.conf", "r").readlines()
     # test for PERL5LIB before any work is done
-    #try:
-    #    os.environ['PERL5LIB']
-    #except KeyError:
-    #    print "Please set your PERL5LIB environment variable"
-    #    sys.exit()
+    try:
+        os.environ['PERL5LIB']
+    except KeyError:
+        print "Please set your PERL5LIB environment variable"
+        sys.exit()
     # test for a valid VarScan before any work is done as well
     if not os.path.exists(args.varscan_location):
         print "> VarScan location (%s) not valid" % (args.varscan_location)
@@ -349,4 +357,4 @@ if __name__ == '__main__':
     varscan_conf.close()
     samtools_conf.close()
 
-#    concat_vcfs(vcf_dir)
+    concat_vcfs(vcf_dir)
