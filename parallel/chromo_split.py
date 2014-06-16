@@ -79,7 +79,7 @@ def parse_header(samfile):
         print "> found sections: %s" % (', '.join(item for item in sections))
     return sections
 
-def build_varscan_args(mpileup_file_name_name):
+def build_varscan_args(mpileup_file_name):
     """
     Parses a file containing the arguments for VarScan and returns a list for
     subprocess.open
@@ -125,6 +125,7 @@ def run(region):
     """
     Extracts the specific region and creates a mpileup file from that
     region, in turn this mpileup file is used to create a vcf file.
+    :param region: the region to process
     """
     region_bam = create_bam(region)
     region_mpileup = create_mpileup(region, region_bam)
@@ -136,11 +137,12 @@ def run(region):
 def create_bam(region):
     """
     Creates a bam file from the passed region
+    :param region: the region to make a bam file from
     """
     bam_f = open(os.path.join(bam_dir, region + ".bam"), "w+b")
     if args.verbose:
         print "> %s creating %s" % (strftime(t_format), bam_f.name)
-    subprocess.call(["samtools", "view", "-b", bam_file.filename, region],
+    subprocess.call(["samtools", "view", "-b", BAM_FILE.filename, region],
         stdout=bam_f)
     if args.verbose:
         print "> %s FINISHED bam file for %s" % (strftime(t_format), region)
@@ -150,6 +152,8 @@ def create_bam(region):
 def create_mpileup(region, bam_f):
     """
     Creates a mpileup file from the passed bam file
+    :param region: the region to process
+    :param bam_f: the bam file to make the mpileup file from
     """
     mpileup_f = open(os.path.join(mpileup_dir, region + ".mpileup"), "w+b")
     if args.verbose:
@@ -186,7 +190,7 @@ def run_with_pipe(region):
     # for the processes to finish and you'll have to manually kill them.
     if args.verbose:
         print "> %s starting region %s" % (strftime(t_format), region)
-    bam = subprocess.Popen(["samtools", "view", "-b", bam_file.filename, region],
+    bam = subprocess.Popen(["samtools", "view", "-b", BAM_FILE.filename, region],
         stdout=subprocess.PIPE)
     mpileup = subprocess.Popen(build_samtools_args(""), stdin=bam.stdout,
         stdout=subprocess.PIPE)
@@ -212,7 +216,7 @@ def concat_vcfs(vcf_dir):
             (strftime(t_format), vcf_dir)
     # the new file has to be created after the relevant vcf files have been
     # added to the list, if it's created before very bad things happen
-    vcf_file = open(os.path.join(vcf_dir, get_file_prefix(bam_file.filename) +
+    vcf_file = open(os.path.join(vcf_dir, get_file_prefix(BAM_FILE.filename) +
         ".vcf"), "w+")
     subprocess.call(arg_list, stdout=vcf_file)
 
@@ -268,7 +272,7 @@ if __name__ == '__main__':
 
     LOCK = Lock()
 
-    bam_file = pysam.Samfile(str(args.infile), "rb")
+    BAM_FILE = pysam.Samfile(str(args.infile), "rb")
 
     # global variables just to save some typing
     action = args.action
@@ -303,23 +307,23 @@ if __name__ == '__main__':
         args.keep_mpileup = False
 
     # append the name of the file to the dirs to avoid name conflicts
-    bam_dir = "bam_" + get_file_prefix(bam_file.filename)
-    mpileup_dir = "mpileup_" + get_file_prefix(bam_file.filename)
-    vcf_dir = "vcf_" + get_file_prefix(bam_file.filename)
+    bam_dir = "bam_" + get_file_prefix(BAM_FILE.filename)
+    mpileup_dir = "mpileup_" + get_file_prefix(BAM_FILE.filename)
+    vcf_dir = "vcf_" + get_file_prefix(BAM_FILE.filename)
     t_format = '%H:%M:%S'
 
     # get the file ready for processing (if necessary)
     if args.sort:
         args.index = True
-        sorted_file = append_file_name(bam_file.filename, "sorted")
+        sorted_file = append_file_name(BAM_FILE.filename, "sorted")
         if args.verbose:
-            print "> sorting %s for indexing" % (bam_file.filename)
+            print "> sorting %s for indexing" % (BAM_FILE.filename)
             print "> creating %s" % (sorted_file)
-        subprocess.call(["samtools", "sort", bam_file.filename, sorted_file])
+        subprocess.call(["samtools", "sort", BAM_FILE.filename, sorted_file])
     if args.index:
         if args.verbose:
-            print "> indexing %s for viewing" % (bam_file.filename)
-        subprocess.call(["samtools", "index", bam_file.filename])
+            print "> indexing %s for viewing" % (BAM_FILE.filename)
+        subprocess.call(["samtools", "index", BAM_FILE.filename])
 
     # create directories to avoid a messy working directory
     if not with_pipe:
@@ -327,13 +331,13 @@ if __name__ == '__main__':
         safe_mkdir(mpileup_dir)
     safe_mkdir(vcf_dir)
 
-    run_processes(bam_file)
+    run_processes(BAM_FILE)
 
     # clean up (if necessary)
     if not args.keep_bam and not with_pipe:
         os.rmdir(bam_dir)
     if not args.keep_mpileup and not with_pipe:
         os.rmdir(mpileup_dir)
-    bam_file.close()
+    BAM_FILE.close()
 
 #    concat_vcfs(vcf_dir)
