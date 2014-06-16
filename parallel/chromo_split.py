@@ -43,8 +43,8 @@ except ImportError:
 def append_file_name(file_name, to_add):
     """
     Creates a new file name with a string appended
-    : file_name : the name of the file (as a string)
-    : to_add : the string to add to file_name
+    :param file_name: the name of the file (as a string)
+    :param to_add: the string to add to file_name
     """
     (prefix, _) = file_name.split(".")
     return prefix + "." + to_add
@@ -61,6 +61,7 @@ def safe_mkdir(dirname):
     """
     Attempts to make a directory with the name `dirname`. If a directory already
     exists with that name, the program exits gracefully with a nice message.
+    :param dirname: the name of the directory to make
     """
     try:
         os.mkdir(dirname)
@@ -71,6 +72,7 @@ def safe_mkdir(dirname):
 def parse_header(samfile):
     """
     Returns the sections from 'samfile'
+    :param samfile: the bam file to parse
     """
     sections = [SQ['SN'] for SQ in samfile.header['SQ']]
     if args.verbose:
@@ -81,6 +83,7 @@ def build_varscan_args(mpileup_f):
     """
     Parses a file containing the arguments for VarScan and returns a list for
     subprocess.open
+    :param mpileup_f: the name of the mpileup file to add to use as an argument
     """
 
     args = ["java", "-jar", varscan_location, action]
