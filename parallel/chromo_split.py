@@ -21,7 +21,6 @@ TODO
 * improve variable names
 * allow for stderr of programs to go to dev/null
 * add a 'restart' command
-* add option for samtools.conf
 """
 
 import subprocess
@@ -41,19 +40,22 @@ except ImportError:
 #                              utility functions
 ################################################################################
 
-def append_file_name(samfile, to_add):
+def append_file_name(file_name, to_add):
     """
     Creates a new file name with a string appended
+    : file_name : the name of the file (as a string)
+    : to_add : the string to add to file_name
     """
-    (prefix, _) = samfile.filename.split(".")
+    (prefix, _) = file_name.split(".")
     return prefix + "." + to_add
 
-def get_file_prefix(samfile):
+def get_file_prefix(file_name):
     """
     Returns the file name without the extension
     i.e ~/User/Desktop/hello.txt -> hello
+    :param file_name: the name of the file to extract the extension from
     """
-    return samfile.split('/')[-1].split('.')[0]
+    return file_name.split('/')[-1].split('.')[0]
 
 def safe_mkdir(dirname):
     """
@@ -270,7 +272,8 @@ if __name__ == '__main__':
     varscan_conf = args.varscan_conf
     samtools_conf = args.samtools_conf
 
-    # test to see if a default varscan.conf should be used
+    # test to see if a default varscan.conf and samtools.conf should be used
+    # note: the files are returned to lists to avoid having to rewind them
     if varscan_conf == None:
         varscan_conf = open("varscan.conf", "r").readlines()
     if samtools_conf == None:
@@ -304,7 +307,7 @@ if __name__ == '__main__':
     # get the file ready for processing (if necessary)
     if args.sort:
         args.index = True
-        sorted_file = append_file_name(bam_file, "sorted")
+        sorted_file = append_file_name(bam_file.filename, "sorted")
         if args.verbose:
             print "> sorting %s for indexing" % (bam_file.filename)
             print "> creating %s" % (sorted_file)
