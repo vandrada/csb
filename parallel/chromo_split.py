@@ -169,6 +169,8 @@ def create_mpileup(region, bam_f):
 def create_vcf(region, mpileup_f):
     """
     Runs VarScan on the mpileup file
+    :param region: the region to process
+    :mpileup_f: the mpileup file to make the vcf file from
     """
     vcf_f = open(os.path.join(vcf_dir, region + ".vcf"), "w+")
     if args.verbose:
@@ -184,6 +186,7 @@ def create_vcf(region, mpileup_f):
 def run_with_pipe(region):
     """
     Runs the same commands as `run` but in a true pipeline
+    :param region: the region to process
     """
     # it's important that the last command in the pipeline is evoked with
     # `subprocess.call`. If it's not, the program will terminate without waiting
@@ -207,6 +210,7 @@ def run_with_pipe(region):
 def concat_vcfs(vcf_dir):
     """
     Concats all the vcf files created into a new file in the same directory.
+    :param vcf_dir: the directory with the vcf files to concat
     """
     arg_list = ["vcf-concat"]
     for vcf in os.listdir(vcf_dir):
@@ -220,9 +224,12 @@ def concat_vcfs(vcf_dir):
         ".vcf"), "w+")
     subprocess.call(arg_list, stdout=vcf_file)
 
+    vcf_file.close()
+
 def run_processes(infile):
     """
     Function to spawn and join the processes
+    :param infile: the initial bam file to process
     """
     # awesome ThreadPoolExecutor from Python 3. Allows you to control how many
     # concurrent processes are running at once. Useful in this program since
@@ -281,7 +288,7 @@ if __name__ == '__main__':
     samtools_conf = args.samtools_conf
 
     # test to see if a default varscan.conf and samtools.conf should be used
-    # note: the files are returned to lists to avoid having to rewind them
+    # note: the files are returned to lists to avoid having to rewind the files
     if varscan_conf == None:
         varscan_conf = open("varscan.conf", "r").readlines()
     if samtools_conf == None:
@@ -339,5 +346,7 @@ if __name__ == '__main__':
     if not args.keep_mpileup and not with_pipe:
         os.rmdir(mpileup_dir)
     BAM_FILE.close()
+    varscan_conf.close()
+    samtools_conf.close()
 
 #    concat_vcfs(vcf_dir)
