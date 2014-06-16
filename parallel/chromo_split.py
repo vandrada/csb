@@ -16,11 +16,8 @@ program as modular as possible, the only function that I can think of that is
 too monolithic is run_with_pipe, but that's just my opinion.
 
 TODO
-* improve comments
-* use expanduser?
-* improve variable names
-* allow for stderr of programs to go to dev/null
-* add a 'restart' command
+* allow for stderr of programs to go to /dev/null
+* add a 'restart' option
 """
 
 import subprocess
@@ -104,7 +101,7 @@ def build_varscan_args(mpileup_file_name):
 
 def build_samtools_args(bam_file_name):
     """
-    Parses a file containing the arguments for samtools mpileup and returns a
+    Parses a file containing the arguments for `samtools mpileup` and returns a
     list for subprocess.open. Unfortunately, it's very similar to
     build_varscan_args.
     :param bam_file_name: the name of the bam file to add as an argument
