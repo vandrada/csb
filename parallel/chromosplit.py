@@ -36,6 +36,16 @@ except ImportError:
 ################################################################################
 #                              utility functions
 ################################################################################
+def l_print(mes):
+    """
+    'Locked print'. Acquires a lock object, prints 'mes', and then releases the
+    lock object.  Primarily for use in the functions that are added to
+    ThreadProcessExecutor.
+    :param mes: the message to print
+    """
+    LOCK.acquire()
+    print mes
+    LOCK.release()
 
 def append_file_name(file_name, to_add):
     """
@@ -145,11 +155,11 @@ def create_bam(region):
     """
     bam_f = open(os.path.join(bam_dir, region + ".bam"), "w+b")
     if args.verbose:
-        print "> %s creating %s" % (strftime(t_format), bam_f.name)
+        l_print("> %s creating %s" % (strftime(t_format), bam_f.name))
     subprocess.call(["samtools", "view", "-b", BAM_FILE.filename, region],
         stdout=bam_f)
     if args.verbose:
-        print "> %s FINISHED bam file for %s" % (strftime(t_format), region)
+        l_print("> %s FINISHED bam file for %s" % (strftime(t_format), region))
 
     return bam_f
 
@@ -162,12 +172,13 @@ def create_mpileup(region, bam_f):
     """
     mpileup_f = open(os.path.join(mpileup_dir, region + ".mpileup"), "w+b")
     if args.verbose:
-        print "> %s creating %s" % (strftime(t_format), mpileup_f.name)
+        l_print("> %s creating %s" % (strftime(t_format), mpileup_f.name))
     subprocess.call(build_samtools_args(bam_f.name), stdout=mpileup_f)
     if not args.keep_bam:
         os.remove(bam_f.name)
     if args.verbose:
-        print "> %s FINISHED mpileup file for %s" % (strftime(t_format), region)
+        l_print("> %s FINISHED mpileup file for %s" %
+            (strftime(t_format), region))
 
     return mpileup_f
 
@@ -179,12 +190,12 @@ def create_vcf(region, mpileup_f):
     """
     vcf_f = open(os.path.join(vcf_dir, region + ".vcf"), "w+")
     if args.verbose:
-        print "> %s creating vcf for %s" % (strftime(t_format), region)
+        l_print("> %s creating vcf for %s" % (strftime(t_format), region))
     subprocess.call(build_varscan_args(mpileup_f.name), stdout=vcf_f)
     if not args.keep_mpileup:
         os.remove(mpileup_f.name)
     if args.verbose:
-        print "> %s FINISHED vcf file for %s" % (strftime(t_format), region)
+        l_print("> %s FINISHED vcf file for %s" % (strftime(t_format), region))
 
     vcf_f.close()
 
@@ -197,7 +208,7 @@ def run_with_pipe(region):
     # `subprocess.call`. If it's not, the program will terminate without waiting
     # for the processes to finish and you'll have to manually kill them.
     if args.verbose:
-        print "> %s starting region %s" % (strftime(t_format), region)
+        l_print("> %s starting region %s" % (strftime(t_format), region))
     bam = subprocess.Popen(["samtools", "view", "-b", BAM_FILE.filename, region],
         stdout=subprocess.PIPE)
     mpileup = subprocess.Popen(build_samtools_args(""), stdin=bam.stdout,
@@ -210,7 +221,7 @@ def run_with_pipe(region):
     mpileup.stdout.close()
 
     if args.verbose:
-        print "> %s FINISHED region %s" % (strftime(t_format), region)
+        l_print("> %s FINISHED region %s" % (strftime(t_format), region))
 
 def concat_vcfs(vcf_dir):
     """
