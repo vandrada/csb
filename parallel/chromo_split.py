@@ -351,7 +351,5 @@ if __name__ == '__main__':
     if not args.keep_mpileup and not with_pipe:
         os.rmdir(mpileup_dir)
     BAM_FILE.close()
-    varscan_conf.close()
-    samtools_conf.close()
 
     concat_vcfs(vcf_dir)
