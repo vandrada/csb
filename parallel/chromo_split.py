@@ -285,7 +285,7 @@ if __name__ == '__main__':
 
     LOCK = Lock()
 
-    BAM_FILE = pysam.Samfile(str(args.infile), "rb")
+    BAM_FILE = pysam.Samfile(args.infile, "rb")
 
     # global variables just to save some typing
     action = args.action
