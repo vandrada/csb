@@ -129,7 +129,8 @@ mpileup files pass `--keep-mpileup`; finally, if you would like to keep all the
 files pass `--keep-all`. The vcf files are _always_ kept.
 
 * The `varscan.conf` and `samtools.conf` files are simply files where each
-argument to pass to VarScan or samtools are on a single line.
+argument and switch to pass to VarScan or samtools are on a single line. An
+example of each file is in `parallel/`.
 
 # Batch Processing bam Files
 In order to process multiple bam file at once, there is the program `dispatch`.
