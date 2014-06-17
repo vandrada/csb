@@ -92,7 +92,7 @@ def build_varscan_args(mpileup_file_name):
     if not with_pipe:
         args.append(mpileup_file_name)
     LOCK.acquire()
-    for line in varscan_conf:
+    for line in VARSCAN_CONF:
         args.append(line.strip('\n'))
 
     LOCK.release()
@@ -114,7 +114,7 @@ def build_samtools_args(bam_file_name):
         args.extend(["-", "-o", "-"])
 
     LOCK.acquire()
-    for line in samtools_conf:
+    for line in SAMTOOLS_CONF:
         args.append(line.strip('\n'))
 
     LOCK.release()
@@ -263,6 +263,11 @@ if __name__ == '__main__':
         help="the location of varscan.conf (defaults to the working directory)")
     parser.add_argument("--samtools-conf", dest="samtools_conf", default=None,
         help="the location of samtools.conf (defaults to the working directory")
+    # options related to bam files
+    parser.add_argument("--sort", action="store_true", dest="sort",
+        help="use if the file needs to be sorted (implies --index)")
+    parser.add_argument("--index", action="store_true", dest="index",
+        help="use if the file needs to be indexed")
     # options
     parser.add_argument("--with-pipe", action="store_true", dest="with_pipe",
         help="instead of writing to disk, the commands are piped")
@@ -274,10 +279,6 @@ if __name__ == '__main__':
         dest="keep_mpileup", help="keeps the intermediate mpileup files")
     parser.add_argument("--keep-all", action="store_true", dest="keep_all",
         help="keeps bam and mpileup files")
-    parser.add_argument("--sort", action="store_true", dest="sort",
-        help="use if the file needs to be sorted (implies --index)")
-    parser.add_argument("--index", action="store_true", dest="index",
-        help="use if the file needs to be indexed")
     parser.add_argument('-v', "--verbose", action="store_true", dest="verbose",
         help="output additional information")
     args = parser.parse_args()
@@ -289,15 +290,15 @@ if __name__ == '__main__':
     # global variables just to save some typing
     action = args.action
     with_pipe = args.with_pipe
-    varscan_conf = args.varscan_conf
-    samtools_conf = args.samtools_conf
+    VARSCAN_CONF = args.varscan_conf
+    SAMTOOLS_CONF = args.samtools_conf
 
     # test to see if a default varscan.conf and samtools.conf should be used
     # note: the files are returned to lists to avoid having to rewind the files
-    if varscan_conf == None:
-        varscan_conf = open("varscan.conf", "r").readlines()
-    if samtools_conf == None:
-        samtools_conf = open("samtools.conf", "r").readlines()
+    if VARSCAN_CONF == None:
+        VARSCAN_CONF = open("varscan.conf", "r").readlines()
+    if SAMTOOLS_CONF == None:
+        SAMTOOLS_CONF = open("samtools.conf", "r").readlines()
     # test for PERL5LIB before any work is done
     try:
         os.environ['PERL5LIB']
