@@ -11,7 +11,7 @@ parallel can be controlled with a command line argument. There are two
 'runnable' functions: one that writes to disk--and is thus slower--and one that
 uses pipes; once again, which one is used can be determined by a command line
 argument. The program needs two different configuration files, one to pass
-arguments to `samtools mpileup` and another for VarScan. I tried to make this
+arguments to `samtools mpileup` and another to VarScan. I tried to make this
 program as modular as possible, the only function that I can think of that is
 too monolithic is run_with_pipe, but that's just my opinion.
 
