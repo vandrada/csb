@@ -47,10 +47,11 @@ def parse_file(file_with_bams):
 
     return map(lambda file_name: file_name.strip('\n'), lines)
 
-def make_dir(sections):
+def make_dirs(sections):
     try:
         for section in sections:
             os.mkdir(section)
+        os.mkdir(vcf_dir_name)
     except OSError:
         s_print("please remove the directories")
         sys.exit()
