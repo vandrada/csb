@@ -74,38 +74,33 @@ def build_samtools_args(bamfiles):
     :param bam_file_name: the name of the bam file to add as an argument
     :return: a list of arguments for subprocess
     """
-    args = ["samtools", "mpileup"]
+    cmd = ["samtools", "mpileup"]
     for bamfile in bamfiles:
-        args.append(bamfile)
-    args.extend(["-o", "-"])
+        cmd.append(bamfile)
+    cmd.extend(["-o", "-"])
 
     lock.acquire()
     for line in SAMTOOLS_CONF:
-        args.append(line.strip('\n'))
-
+        cmd.append(line.strip('\n'))
     lock.release()
 
-    return args
+    return cmd
 
-def build_varscan_args(mpileup_file_name):
+def build_varscan_args():
     """
     Parses a file containing the arguments for VarScan and returns a list for
     subprocess.open
     :param mpileup_file_name: the name of the mpileup file to add as an argument
     :return: a list of arguments for subprocess
     """
+    cmd = ["java", "-jar", args.location, args.action]
 
-    args = ["java", "-jar", varscan_location, action]
-    if not with_pipe:
-        args.append(mpileup_file_name)
-    LOCK.acquire()
+    lock.acquire()
     for line in VARSCAN_CONF:
-        args.append(line.strip('\n'))
+        cmd.append(line.strip('\n'))
+    lock.release()
 
-    LOCK.release()
-
-    return args
-
+    return cmd
 
 def create_bam(bamfile, region):
     """
