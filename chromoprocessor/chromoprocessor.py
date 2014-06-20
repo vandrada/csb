@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
-import pysam
-import sys
 import os
+import sys
+import pysam
 import subprocess
-from concurrent.futures import ThreadPoolExecutor
 import multiprocessing
-from argparse import ArgumentParser
+try:
+    from concurrent.futures import ThreadPoolExecutor
+    from argparse import ArgumentParser
+except ImportError:
+    s_print("please install the needed Python modules")
 
 def s_print(mes, newline=True, pro='*'):
     if newline:
@@ -17,7 +20,7 @@ def s_print(mes, newline=True, pro='*'):
 def extract_header(samfile):
     """
     Extracts the regions from the bam file
-    :param bam_file: the bam file to extract the headers from
+    :param samfile: the bam file to extract the headers from
     """
     sections = [SQ['SN'] for SQ in samfile.header['SQ']]
     return sections
@@ -32,8 +35,9 @@ def get_filename(samfile):
 
 def parse_file(file_with_bams):
     """
-    Returns a list of the files that need to be processed
-    :return: an empty list if an error occurs, else a list with the files
+    Returns a list of the files that need to be processed.
+    :param file_with_bams: a file containing the name of the files to process.
+    :return: an empty list if an error occurs, else a list with the files.
     """
     files = open(file_with_bams, "r")
     lines = files.readlines()
@@ -42,21 +46,31 @@ def parse_file(file_with_bams):
     # sanity check...
     for line in lines:
         if line.strip('\n').split('.')[-1] != 'bam':
-            s_print("%s is not a bam file" % (line))
+            s_print("%s is not a bam file" % (line), pro="!")
             return []
 
     return map(lambda file_name: file_name.strip('\n'), lines)
 
 def make_dirs(sections):
+    """
+    Attempts to make the dirs that are needed throughout the course of the
+    program: one for vcf files and another for the transient bam files.
+    :param sections: a list containing the names of the directories
+    """
     try:
         for section in sections:
             os.mkdir(section)
         os.mkdir(vcf_dir_name)
     except OSError:
-        s_print("please remove the directories")
+        s_print("please remove the directories", pro="!")
         sys.exit()
 
 def read_conf_file(conf):
+    """
+    Reads a .conf file and returns the contents
+    :param conf: the conf file to read
+    :return: a list of the lines in the file
+    """
     try:
         with open(conf, "r") as f:
             return f.readlines()
@@ -69,7 +83,7 @@ def check_headers(bamfiles):
     :param bamfiles: a list of bam files
     :return: True if the headers all the same, False otherwise
     """
-    # get the first header and use it as a comparator
+    # get the first header and use it to compare against
     master = extract_header(bamfiles[0])
     return (all(map(lambda h: extract_header(h) == master, bamfiles)), master)
 
@@ -78,8 +92,8 @@ def build_samtools_args(bamfiles):
     Parses a file containing the arguments for `samtools mpileup` and returns a
     list for subprocess.open. Unfortunately, it's very similar to
     build_varscan_args.
-    :param bam_file_name: the name of the bam file to add as an argument
-    :return: a list of arguments for subprocess
+    :param bamfiles: a list of the bamfiles to add to the command.
+    :return: a list of arguments for the samtools mpileup command.
     """
     cmd = ["samtools", "mpileup"]
     for bamfile in bamfiles:
@@ -97,8 +111,7 @@ def build_varscan_args():
     """
     Parses a file containing the arguments for VarScan and returns a list for
     subprocess.open
-    :param mpileup_file_name: the name of the mpileup file to add as an argument
-    :return: a list of arguments for subprocess
+    :return: a list of arguments for the VarScan subprocess
     """
     cmd = ["java", "-jar", args.location, args.action]
 
@@ -124,8 +137,9 @@ def create_bam(bamfile, region):
 
 def create_vcf(region):
     """
-    call 'samtools mpileup' on all the files in a region and pipe the output to
-    VarScan
+    Calls 'samtools mpileup' on all the files in a region and pipes the output
+    to VarScan.
+    :param region: the region--directory--to process
     """
     # get all the bam files first!
     bamfiles = [os.path.join(region, bamf) for bamf in os.listdir(region)]
@@ -180,11 +194,12 @@ if __name__ == "__main__":
 
     to_process = parse_file(args.file_names)    # the files to process
     bamfiles = []                               # samfile objects
+    vcf_dir_name = "vcf"
     lock = multiprocessing.Lock()
     SAMTOOLS_CONF = read_conf_file("samtools.conf")
     VARSCAN_CONF = read_conf_file("varscan.conf")
-    vcf_dir_name = "vcf"
 
+    # check if the files are valid
     if to_process == []:
         s_print("exiting", pro="!")
         sys.exit()
