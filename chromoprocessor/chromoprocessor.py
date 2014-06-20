@@ -116,15 +116,23 @@ def create_bam(bamfile, region):
 
 def create_vcf(region):
     """
-    call 'samtools mpileup' on all the files in a region and pipe the output to 
+    call 'samtools mpileup' on all the files in a region and pipe the output to
     VarScan
     """
+    # get all the bam files first!
     bamfiles = os.listdir(region)
-    cmd = build_samtools_args(bamfiles)
+
+    samtools_cmd = build_samtools_args(bamfiles)
+    varscan_cmd = build_varscan_args()
+    outfile_name = os.path.join(vcf_dir_name, region + ".vcf")
+    varscan_file = open(outfile_name, "w+b")
+
     if args.verbose:
-        s_print("calling '" + ' '.join(arg for arg in cmd) + "'")
-    mpileup = open(os.path.join(region, region + ".mpileup"), "w+b")
-    subprocess.call(cmd, stdout=mpileup)
+        s_print("calling: %s | %s > %s" % (' '.join(samtools_cmd),
+        ' '.join(varscan_cmd), varscan_file.name))
+
+    mpileup = subprocess.Popen(samtools_cmd, stdout=subprocess.PIPE)
+    subprocess.call(varscan_cmd, stdin=mpileup.stdout, stdout=varscan_file)
 
     # remove the bam files
     for bamfile in bamfiles:
@@ -144,8 +152,14 @@ def create_threads(bamfiles):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    # arguments
     parser.add_argument("file_names",
         help="a file containing the names of the files to process")
+    parser.add_argument("location",
+        help="the location of the VarScan jar file")
+    parser.add_argument("action",
+        help="the action for VarScan to run")
+    # options
     parser.add_argument("--n-region", type=int, dest="n_region", default=2,
         help="the number of regions to process in parallel")
     parser.add_argument("--verbose", "-v", action="store_true")
@@ -156,6 +170,7 @@ if __name__ == "__main__":
     lock = multiprocessing.Lock()
     SAMTOOLS_CONF = []
     VARSCAN_CONF = []
+    vcf_dir_name = "vcf"
 
     if to_process == []:
         s_print("exiting")
@@ -172,6 +187,10 @@ if __name__ == "__main__":
     if not valid:
         s_print("headers are not the same")
         sys.exit()
+    # make sure the VarScan location is valid
+    if not os.path.exists(args.location):
+        print "> VarScan location (%s) not valid" % (args.location)
+        sys.exit()
 
     # open conf files
     with open("samtools.conf", "r") as f:
@@ -179,5 +198,5 @@ if __name__ == "__main__":
     with open("varscan.conf", "r") as f:
         VARSCAN_CONF.extend(f.readlines())
 
-    make_dir(HEADER)
+    make_dirs(HEADER)
     create_threads(bamfiles)
