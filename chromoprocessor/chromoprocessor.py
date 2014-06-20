@@ -106,12 +106,12 @@ def create_vcf(region):
     bamfiles = os.listdir(region)
     cmd = build_samtools_args(bamfiles)
     if args.verbose:
-        s_print("%s: calling '" + ' '.join(arg for arg in cmd) + "'" % (region))
+        s_print("calling '" + ' '.join(arg for arg in cmd) + "'")
     mpileup = open(os.path.join(region, region + ".mpileup"), "w+b")
-    subprocess.call(build_samtools_args(bamfiles), stdout=mpileup)
+    subprocess.call(cmd, stdout=mpileup)
 
     # remove the bam files
-    for bamfile in region:
+    for bamfile in bamfiles:
         os.remove(os.path.join(region, bamfile))
 
 def run(region, bamfiles):
