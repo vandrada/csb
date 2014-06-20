@@ -8,11 +8,11 @@ from concurrent.futures import ThreadPoolExecutor
 import multiprocessing
 from argparse import ArgumentParser
 
-def s_print(mes, newline=True):
+def s_print(mes, newline=True, pro='*'):
     if newline:
-        sys.stdout.write("* " + mes + "\n")
+        sys.stdout.write(pro + " " + mes + "\n")
     else:
-        sys.stdout.write(mes)
+        sys.stdout.write(pro + " " + mes)
 
 def extract_header(samfile):
     """
