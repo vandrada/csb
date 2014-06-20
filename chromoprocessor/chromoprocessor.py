@@ -115,7 +115,8 @@ def create_bam(bamfile, region):
     :param bamfile: the bamfile to extract the region from
     :param region: the region to extract from the bamfile
     """
-    outfile_name = os.path.join(region, get_filename(bamfile.filename) + ".bam")
+    outfile_name = os.path.join(region,
+        region + "_" + get_filename(bamfile.filename) + ".bam")
     s_print("creating %s" %(outfile_name))
     outfile = open(outfile_name, "w+b")
     subprocess.call(
@@ -128,7 +129,8 @@ def create_vcf(region):
     """
     # get all the bam files first!
     bamfiles = os.listdir(region)
-
+    bamfiles = [os.path.join(region, bamf) for bamf in bamfiles]
+    print bamfiles
     samtools_cmd = build_samtools_args(bamfiles)
     varscan_cmd = build_varscan_args()
     outfile_name = os.path.join(vcf_dir_name, region + ".vcf")
