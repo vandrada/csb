@@ -142,7 +142,7 @@ def run(region, bamfiles):
     create_vcf(region)
 
 def create_threads(bamfiles):
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=args.n_region) as executor:
         for region in HEADER:
             executor.submit(run, region, bamfiles)
 
@@ -150,6 +150,8 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("file_names",
         help="a file containing the names of the files to process")
+    parser.add_argument("--n-region", type=int, dest="n_region", default=2,
+        help="the number of regions to process in parallel")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
@@ -157,6 +159,7 @@ if __name__ == "__main__":
     bamfiles = []                               # samfile objects
     lock = multiprocessing.Lock()
     SAMTOOLS_CONF = []
+    VARSCAN_CONF = []
 
     if to_process == []:
         s_print("exiting")
@@ -177,6 +180,8 @@ if __name__ == "__main__":
     # open conf files
     with open("samtools.conf", "r") as f:
         SAMTOOLS_CONF.extend(f.readlines())
+    with open("varscan.conf", "r") as f:
+        VARSCAN_CONF.extend(f.readlines())
 
     make_dir(HEADER)
     create_threads(bamfiles)
