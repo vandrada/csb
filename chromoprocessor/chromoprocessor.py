@@ -86,6 +86,26 @@ def build_samtools_args(bamfiles):
 
     return args
 
+def build_varscan_args(mpileup_file_name):
+    """
+    Parses a file containing the arguments for VarScan and returns a list for
+    subprocess.open
+    :param mpileup_file_name: the name of the mpileup file to add as an argument
+    :return: a list of arguments for subprocess
+    """
+
+    args = ["java", "-jar", varscan_location, action]
+    if not with_pipe:
+        args.append(mpileup_file_name)
+    LOCK.acquire()
+    for line in VARSCAN_CONF:
+        args.append(line.strip('\n'))
+
+    LOCK.release()
+
+    return args
+
+
 def create_bam(bamfile, region):
     """
     Creates the bam file for each region
