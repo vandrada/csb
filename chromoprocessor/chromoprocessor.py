@@ -56,6 +56,13 @@ def make_dirs(sections):
         s_print("please remove the directories")
         sys.exit()
 
+def read_conf_file(conf):
+    try:
+        with open(conf, "r") as f:
+            return f.readlines()
+    except IOError:
+        s_print("%s not found" % (conf), pro="!")
+
 def check_headers(bamfiles):
     """
     Ensures that all the bamfiles have the same sections
@@ -168,12 +175,12 @@ if __name__ == "__main__":
     to_process = parse_file(args.file_names)    # the files to process
     bamfiles = []                               # samfile objects
     lock = multiprocessing.Lock()
-    SAMTOOLS_CONF = []
-    VARSCAN_CONF = []
+    SAMTOOLS_CONF = read_conf_file("samtools.conf")
+    VARSCAN_CONF = read_conf_file("varscan.conf")
     vcf_dir_name = "vcf"
 
     if to_process == []:
-        s_print("exiting")
+        s_print("exiting", pro="!")
         sys.exit()
     if args.verbose:
         s_print("found the following files: %s" % (', '.join(to_process)))
@@ -185,18 +192,12 @@ if __name__ == "__main__":
     # make sure all the files have the same header and regions
     (valid, HEADER) = check_headers(bamfiles)
     if not valid:
-        s_print("headers are not the same")
+        s_print("headers are not the same", pro="!")
         sys.exit()
     # make sure the VarScan location is valid
     if not os.path.exists(args.location):
-        print "> VarScan location (%s) not valid" % (args.location)
+        s_print("VarScan location (%s) not valid" % (args.location), pro="!")
         sys.exit()
-
-    # open conf files
-    with open("samtools.conf", "r") as f:
-        SAMTOOLS_CONF.extend(f.readlines())
-    with open("varscan.conf", "r") as f:
-        VARSCAN_CONF.extend(f.readlines())
 
     make_dirs(HEADER)
     create_threads(bamfiles)
