@@ -103,26 +103,28 @@ def create_vcf(region):
     call 'samtools mpileup' on all the files in a region and pipe the output to 
     VarScan
     """
-    print "create_vcf(%s)" % (region)
-    print os.path.join(region, region + ".vcf")
-    vcf_file = open(os.path.join(region, region + ".vcf"), "w+b")
-    #bamfiles = os.listdir(region)
-    #mpileup = subprocess.Popen(build_samtools_args(bamfiles),
-    #    stdout=subprocess.PIPE)
-    #subprocess.call(build_varscan_args(), stdin=mpileup.stdout, stdout=vcf_file)
+    bamfiles = os.listdir(region)
+    cmd = build_samtools_args(bamfiles)
+    if args.verbose:
+        s_print("%s: calling '" + ' '.join(arg for arg in cmd) + "'" % (region))
+    mpileup = open(os.path.join(region, region + ".mpileup"), "w+b")
+    subprocess.call(build_samtools_args(bamfiles), stdout=mpileup)
+
+    # remove the bam files
+    for bamfile in region:
+        os.remove(os.path.join(region, bamfile))
 
 def run(region, bamfiles):
     if args.verbose:
         s_print("starting region %s" % (region))
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        for bamfile in bamfiles:
-            executor.submit(create_bam, bamfile, region)
+    for bamfile in bamfiles:
+        create_bam(bamfile, region)
+    create_vcf(region)
 
 def create_threads(bamfiles):
     with ThreadPoolExecutor(max_workers=2) as executor:
         for region in HEADER:
             executor.submit(run, region, bamfiles)
-            executor.submit(create_vcf, region)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
