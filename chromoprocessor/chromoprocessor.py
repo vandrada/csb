@@ -128,16 +128,14 @@ def create_vcf(region):
     VarScan
     """
     # get all the bam files first!
-    bamfiles = os.listdir(region)
-    bamfiles = [os.path.join(region, bamf) for bamf in bamfiles]
-    print bamfiles
+    bamfiles = [os.path.join(region, bamf) for bamf in os.listdir(region)]
     samtools_cmd = build_samtools_args(bamfiles)
     varscan_cmd = build_varscan_args()
     outfile_name = os.path.join(vcf_dir_name, region + ".vcf")
     varscan_file = open(outfile_name, "w+b")
 
     if args.verbose:
-        s_print("calling: %s | %s > %s" % (' '.join(samtools_cmd),
+        s_print("calling: \n\t%s | %s > %s" % (' '.join(samtools_cmd),
         ' '.join(varscan_cmd), varscan_file.name))
 
     mpileup = subprocess.Popen(samtools_cmd, stdout=subprocess.PIPE)
@@ -145,7 +143,13 @@ def create_vcf(region):
 
     # remove the bam files
     for bamfile in bamfiles:
-        os.remove(os.path.join(region, bamfile))
+        os.remove(bamfile)
+
+    # and finally remove the directory
+    try:
+        os.rmdir(region)
+    except OSError:
+        s_print("%s not empty" % (region), pro="!")
 
 def run(region, bamfiles):
     if args.verbose:
