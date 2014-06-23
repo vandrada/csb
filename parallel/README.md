@@ -1,15 +1,15 @@
 # Name
-###[Parallel Region Analyzer](https://bitbucket.org/vandrada/csb/downloads)###
+Parallel Region Analyzer
 
 # Description
-Processes a bam file by spawning a process to handle each region in the bam
-file. Each process creates a new bam file for that region, creates a mpileup
+Processes a BAM file by spawning a process to handle each region in the BAM
+file. Each process creates a new BAM file for that region, creates a mpileup
 file, and finally creates a vcf file. The workflow can be pictured like this:
 
 __region -> [samtools mpileup] -> [VarScan]__
 
 The vcf files are then merged into one file that is located in `vcf_*/` with the
-name of the passed in bam file.  The arguments to pass to VarScan are read from
+name of the passed in BAM file.  The arguments to pass to VarScan are read from
 a `varscan.conf` file and the arguments to pass to samtools are read from a
 `samtools.conf` file. This file is expected to be in the current working
 directory.
@@ -36,15 +36,15 @@ usage:
     chromo_split infile action varscan_location
 
 ## Arguments
-* `infile`: the path of the bam file to process.
+* `infile`: the path of the BAM file to process.
 * `action`: the action for VarScan to run.
 * `varscan_location`: the path to the VarScan jar.
 
 ## Options
-### Options Related to the bam File
-* `--index`: if the bam file has not been indexed this flag should be passed.
+### Options Related to the BAM File
+* `--index`: if the BAM file has not been indexed this flag should be passed.
 
-* `--sort`: if the bam file has not been sorted this flag should be passed.
+* `--sort`: if the BAM file has not been sorted this flag should be passed.
 This switch implies `--index`.
 
 ### Options Related to Configuration Files
@@ -56,19 +56,19 @@ current working directory
 
 ### Other Options
 * `--with-pipe`: instead of writing the intermediate files to disk, the commands
-are piped into each other, avoiding disk IO. The directories for bam files and
+are piped into each other, avoiding disk IO. The directories for BAM files and
 mpileup files are not created. Equivalent to
 
 * `--n-procs`: the total number of concurrent processes to run at a time. The
 default is two processes.
 
-* `--keep-bam`: keeps the bam files for each region. The default behavior is
-to remove the bam file once the mpileup file has been created.
+* `--keep-bam`: keeps the BAM files for each region. The default behavior is
+to remove the BAM file once the mpileup file has been created.
 
 * `--keep-mpileup`: keeps the mpileup files for each region. The default
 behavior is to remove them once the vcf file has been created.
 
-* `--keep-all`: keeps the bam file and the mpileup files. Implies `--keep-bam`
+* `--keep-all`: keeps the BAM file and the mpileup files. Implies `--keep-bam`
 and `--keep-mpileup`.
 
 * `-v`, `--verbose`: if this flag is passed, additional information will be
@@ -92,12 +92,12 @@ additional information as each step completes. You can also specify `--verbose`
 with `-v`.
 
 If you would like to keep some of the intermediate files, this example shows how
-to keep the bam files created.
+to keep the BAM files created.
 
     chromo_split your.bam mpileup2snp VarScan.jar --keep-bam
 
 This command will run `mpileup2snp` on the regions of `your.bam` and will keep
-the intermediate bam files that are created in the process.
+the intermediate BAM files that are created in the process.
 
 If you want the program to run a little faster, this example shows how to avoid
 disk IO.
@@ -122,9 +122,9 @@ of the passed in file. i.e `chromo_split test.bam [...]` will create
 `bam_test/`, `mpileup_test/`, and `vcf_test/`.
 
 * To save space, the default behavior is to delete each file once it has been
-processed. For small bam files the three directories shouldn't be a problem, but
-processing a bigger bam file can produce a lot of additional data. If you would
-like to keep the bam file pass `--keep-bam`; if you would like to keep the
+processed. For small BAM files the three directories shouldn't be a problem, but
+processing a bigger BAM file can produce a lot of additional data. If you would
+like to keep the BAM file pass `--keep-bam`; if you would like to keep the
 mpileup files pass `--keep-mpileup`; finally, if you would like to keep all the
 files pass `--keep-all`. The vcf files are _always_ kept.
 
@@ -132,11 +132,11 @@ files pass `--keep-all`. The vcf files are _always_ kept.
 argument and switch to pass to VarScan or samtools are on a single line. An
 example of each file is in `parallel/`.
 
-# Batch Processing bam Files
-In order to process multiple bam file at once, there is the program `dispatch`.
+# Batch Processing BAM Files
+In order to process multiple BAM file at once, there is the program `dispatch`.
 
 ## Description
-Processes all the bam files in a given directory, calling `chromo_split` on each
+Processes all the BAM files in a given directory, calling `chromo_split` on each
 one.
 
 ## Synopsis
@@ -150,28 +150,28 @@ usage:
 * `varscan_location`: the location of the VarScan jar.
 
 ### Options
-* `--n-bam`: the number of bam files to process in parallel. The default value
+* `--n-bam`: the number of BAM files to process in parallel. The default value
 is two.
-* `--n-regions`: the number of regions in each bam file to process in parallel.
+* `--n-regions`: the number of regions in each BAM file to process in parallel.
 The default value is two.
 
 ## Examples
 
     dispatch /home/You/DirectoryWithBams mpileup2snp /home/You/VarScan.jar
 
-Will run `chromo_split` on two bam files in `DirectoryWithBams` in parallel.
+Will run `chromo_split` on two BAM files in `DirectoryWithBams` in parallel.
 `chromo_split` will process two regions in parallel, resulting in a total of
 four processes running.
 
     dispatch /home/You/DirectoryWithBams mpileup2snp /home/You/VarScan.jar --n-bam=3
 
-Will run `chromo_split` on three bam files in `DirectoryWithBams` in parallel.
+Will run `chromo_split` on three BAM files in `DirectoryWithBams` in parallel.
 `chormo_split` will process two regions in parallel, resulting in a total of six
 processes running.
 
 ## Notes
 * A `varscan.conf` file and a `samtools.conf` file is expected to be in the
-directory with the bam files.
+directory with the BAM files.
 
 * The arguments passed to `chromo_split` by default are: `--verbose`,
 `--with-pipe`, and `--n-procs=2`.
