@@ -12,6 +12,12 @@ except ImportError:
     s_print("please install the needed Python modules")
 
 def s_print(mes, newline=True, pro='*'):
+    """
+    prints to stdout with a prologue
+    :param mes: the message to print to stdout
+    :param newline: whether or not to print a new line. The default is True.
+    :param pro: the prologue to precede mes. The default is '*'
+    """
     if newline:
         sys.stdout.write(pro + " " + mes + "\n")
     else:
@@ -143,6 +149,7 @@ def create_vcf(region):
     """
     # get all the bam files first!
     bamfiles = [os.path.join(region, bamf) for bamf in os.listdir(region)]
+
     samtools_cmd = build_samtools_args(bamfiles)
     varscan_cmd = build_varscan_args()
     outfile_name = os.path.join(vcf_dir_name, region + ".vcf")
@@ -192,9 +199,9 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
-    bamfiles = []                               # samfile objects
+    bamfiles = []
     vcf_dir_name = "vcf"
-    to_process = parse_file(args.file_names)    # the files to process
+    to_process = parse_file(args.file_names)
     lock = multiprocessing.Lock()
     SAMTOOLS_CONF = read_conf_file("samtools.conf")
     VARSCAN_CONF = read_conf_file("varscan.conf")
@@ -207,7 +214,7 @@ if __name__ == "__main__":
         s_print("found the following files: %s" % (', '.join(to_process)))
 
     # create the sam files
-    bamfiles = [pysam.Samfile(bam , "rb") for bam in to_process]
+    bamfiles = [pysam.Samfile(bam, "rb") for bam in to_process]
 
     # make sure all the files have the same header and regions
     (valid, HEADER) = check_headers(bamfiles)
