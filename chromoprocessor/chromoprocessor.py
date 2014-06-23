@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Processes multiple BAM files in parallel by splitting them into regions.
+"""
+
 import os
 import sys
 import pysam
@@ -174,6 +178,12 @@ def create_vcf(region):
         s_print("%s not empty" % (region), pro="!")
 
 def run(region, bamfiles):
+    """
+    Super generic name, but this function does the bulk of the work. It creates
+    the BAM files and then creates the vcf files.
+    :param region: the region to process
+    :param bamfile: a list of BAM files to process
+    """
     if args.verbose:
         s_print("starting region %s" % (region))
     for bamfile in bamfiles:
@@ -181,6 +191,10 @@ def run(region, bamfiles):
     create_vcf(region)
 
 def create_threads(bamfiles):
+    """
+    Creates the threads to handle the individual regions.
+    :param bamfiles: a list of bamfiles to process
+    """
     with ThreadPoolExecutor(max_workers=args.n_region) as executor:
         for region in HEADER:
             executor.submit(run, region, bamfiles)
