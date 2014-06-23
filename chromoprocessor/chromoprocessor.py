@@ -55,7 +55,7 @@ def parse_file(file_with_bams):
             s_print("%s is not a bam file" % (line), pro="!")
             return []
 
-    return map(lambda file_name: file_name.strip('\n'), lines)
+    return [line.strip('\n') for line in lines]
 
 def make_dirs(sections):
     """
@@ -87,11 +87,13 @@ def check_headers(bamfiles):
     """
     Ensures that all the bamfiles have the same sections
     :param bamfiles: a list of bam files
-    :return: True if the headers all the same, False otherwise
+    :return: a tuple where the first element is True if all the headers are the
+    same and False otherwise, and the second element is the header of the first
+    element.
     """
     # get the first header and use it to compare against
     master = extract_header(bamfiles[0])
-    return (all(map(lambda h: extract_header(h) == master, bamfiles)), master)
+    return (all([extract_header(bam) == master for bam in bamfiles]), master)
 
 def build_samtools_args(bamfiles):
     """
