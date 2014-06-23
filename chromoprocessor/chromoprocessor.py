@@ -56,7 +56,7 @@ def parse_file(file_with_bams):
     # sanity check...
     for line in lines:
         if line.strip('\n').split('.')[-1] != 'bam':
-            s_print("%s is not a bam file" % (line), pro="!")
+            s_print("%s is not a bam file" % (line.strip('\n')), pro=ERR)
             return []
 
     return [line.strip('\n') for line in lines]
@@ -72,12 +72,14 @@ def make_dirs(sections):
             os.mkdir(section)
         os.mkdir(vcf_dir_name)
     except OSError:
-        s_print("please remove the directories", pro="!")
+        s_print("please remove the directories", pro=ERR)
         sys.exit()
 
 def read_conf_file(conf):
     """
-    Reads a .conf file and returns the contents
+    Reads a .conf file and returns the contents. Since this function returns a
+    list of the files when the program starts, it's impossible to change the
+    parameters during the course of the program.
     :param conf: the conf file to read
     :return: a list of the lines in the file
     """
@@ -85,7 +87,7 @@ def read_conf_file(conf):
         with open(conf, "r") as f:
             return f.readlines()
     except IOError:
-        s_print("%s not found" % (conf), pro="!")
+        s_print("%s not found" % (conf), pro=ERR)
 
 def check_headers(bamfiles):
     """
@@ -175,7 +177,7 @@ def create_vcf(region):
     try:
         os.rmdir(region)
     except OSError:
-        s_print("%s not empty" % (region), pro="!")
+        s_print("%s not empty" % (region), pro=ERR)
 
 def run(region, bamfiles):
     """
@@ -214,6 +216,9 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
+    # default values for s_print
+    ERR = '!'
+
     bamfiles = []
     vcf_dir_name = "vcf"
     to_process = parse_file(args.file_names)
@@ -223,7 +228,7 @@ if __name__ == "__main__":
 
     # check if the files are valid
     if to_process == []:
-        s_print("exiting", pro="!")
+        s_print("exiting", pro=ERR)
         sys.exit()
     if args.verbose:
         s_print("found the following files: %s" % (', '.join(to_process)))
@@ -234,11 +239,11 @@ if __name__ == "__main__":
     # make sure all the files have the same header and regions
     (valid, HEADER) = check_headers(bamfiles)
     if not valid:
-        s_print("headers are not the same", pro="!")
+        s_print("headers are not the same", pro=ERR)
         sys.exit()
     # make sure the VarScan location is valid
     if not os.path.exists(args.location):
-        s_print("VarScan location (%s) not valid" % (args.location), pro="!")
+        s_print("VarScan location (%s) not valid" % (args.location), pro=ERR)
         sys.exit()
 
     make_dirs(HEADER)
