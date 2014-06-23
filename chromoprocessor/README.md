@@ -6,15 +6,15 @@ Processes multiple BAM files by splitting each BAM file into it's regions.
 
 # Dependencies
 ## Python Modules
-* `pysam`
-* `argparse`
+* __pysam__
+* __argparse__
 
     <sub> \* only if using a Python version &lt; 2.7 </sub>
-* `futures`
+* __futures__
 
     <sub> \* only if using a Python version &lt; 3.0 </sub>
 ## Other
-* `vcftools`
+* __vcftools__
 
 # Synopsis
 usage:
@@ -32,16 +32,17 @@ two.
 * `--verbose`: output additional information.
 
 # Examples
-The easiset way to create the file with the BAM files to process is with `ls` if
-you're gonna call `chromoprocessor` from the same directory where the BAM files
-are, or with `find` otherwise.
+The easiset way to create the file with the name of the BAM files to process is
+with `ls` if you're gonna call `chromoprocessor` from the same directory where
+the BAM files are, or with `find` otherwise, i.e `ls *.bam > to_process.txt`. Of
+course, the name of the file is completely arbitrary and can be anything.
 
 After the file is produced it's as simple as
 
     chromoprocessor to_process.txt mpileup2snp /home/You/VarScan.jar -v
 
 If you have the hardware and you would like the BAM files to be processed
-quicker, you can run
+quicker, you can run more jobs in parallel
 
     chromoprocessor to_process.txt mpileup2snp /home/You/VarScan.jar -v --n-region=6
 
