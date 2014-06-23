@@ -192,9 +192,9 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
-    to_process = parse_file(args.file_names)    # the files to process
     bamfiles = []                               # samfile objects
     vcf_dir_name = "vcf"
+    to_process = parse_file(args.file_names)    # the files to process
     lock = multiprocessing.Lock()
     SAMTOOLS_CONF = read_conf_file("samtools.conf")
     VARSCAN_CONF = read_conf_file("varscan.conf")
@@ -207,8 +207,7 @@ if __name__ == "__main__":
         s_print("found the following files: %s" % (', '.join(to_process)))
 
     # create the sam files
-    for bamfile in to_process:
-        bamfiles.append(pysam.Samfile(bamfile, "rb"))
+    bamfiles = [pysam.Samfile(bam , "rb") for bam in to_process]
 
     # make sure all the files have the same header and regions
     (valid, HEADER) = check_headers(bamfiles)
