@@ -102,8 +102,7 @@ def build_samtools_args(bamfiles):
     :return: a list of arguments for the samtools mpileup command.
     """
     cmd = ["samtools", "mpileup"]
-    for bamfile in bamfiles:
-        cmd.append(bamfile)
+    cmd.extend(bamfiles)
     cmd.extend(["-o", "-"])
 
     lock.acquire()
