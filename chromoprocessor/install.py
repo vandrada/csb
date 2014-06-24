@@ -26,12 +26,13 @@ def install(lib, url):
     lib_tar = tarfile.open(lib + ".tar.gz")
     lib_tar.extractall()
     lib_tar.close()
-    os.remove(lib_tar.name)
     # install
     os.chdir(lib_dir)
     subprocess.call(['python', 'setup.py', 'install', '--user'])
     os.chdir(HOME)
+    # clean up
     shutil.rmtree(lib_dir)
+    os.remove(lib_tar.name)
 
 def main():
     # URLs
