@@ -24,9 +24,11 @@ def s_print(mes, newline=True, pro='*'):
     :param pro: the prologue to precede mes. The default is '*'
     """
     t_form = "%H:%M:%S"
+    lock.acquire()
     sys.stdout.write(pro + '[' + time.strftime(t_form) + ']' + mes)
     if newline:
         sys.stdout.write("\n")
+    lock.release()
 
 def extract_header(samfile):
     """
