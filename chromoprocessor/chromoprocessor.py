@@ -7,6 +7,7 @@ Processes multiple BAM files in parallel by splitting them into regions.
 import os
 import sys
 import pysam
+import time
 import subprocess
 import multiprocessing
 try:
@@ -22,10 +23,10 @@ def s_print(mes, newline=True, pro='*'):
     :param newline: whether or not to print a new line. The default is True.
     :param pro: the prologue to precede mes. The default is '*'
     """
+    t_form = "%H:%M:%S"
+    sys.stdout.write(pro + '[' + time.strftime(t_form) + ']' + mes)
     if newline:
-        sys.stdout.write(pro + " " + mes + "\n")
-    else:
-        sys.stdout.write(pro + " " + mes)
+        sys.stdout.write("\n")
 
 def extract_header(samfile):
     """
