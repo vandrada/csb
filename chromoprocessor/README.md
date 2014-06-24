@@ -54,3 +54,7 @@ quicker, you can run more jobs in parallel
 working directory when the program is called. The files should contain the
 arguments and parameters you want to pass to VarScan and samtools respectively.
 Examples of each can be find in the repository.
+
+## TODO
+* add support for `--vcf-sample-list`
+* add ability to specify which regions to process
