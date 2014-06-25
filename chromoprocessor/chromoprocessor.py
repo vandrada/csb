@@ -219,15 +219,15 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
-    # default values for s_print
+    # default value for s_print
     ERR = '!'
-
-    bamfiles = []
-    vcf_dir_name = "vcf"
-    to_process = parse_file(args.file_names)
-    lock = multiprocessing.Lock()
     SAMTOOLS_CONF = read_conf_file("samtools.conf")
     VARSCAN_CONF = read_conf_file("varscan.conf")
+    lock = multiprocessing.Lock()
+    vcf_dir_name = "vcf"
+
+    bamfiles = []
+    to_process = parse_file(args.file_names)
 
     # check if the files are valid
     if to_process == []:
