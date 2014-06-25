@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="name">Name</h1>
+<p>chromoprocessor</p>
+<h1 id="description">Description</h1>
+<p>Processes multiple BAM files by splitting each BAM file into it's regions. Parallelizes a command similar to</p>
+<pre><code>samtools mpileup 1.bam 2.bam ... n.bam | java -jar VarScan &gt; out.vcf</code></pre>
+<h1 id="dependencies">Dependencies</h1>
+<h2 id="python-modules">Python Modules</h2>
+<ul>
+<li><strong>pysam</strong></li>
+<li><p><strong>argparse</strong></p>
+<sub> * only if using a Python version &lt; 2.7 </sub></li>
+<li><p><strong>futures</strong></p>
+<p><sub> * only if using a Python version &lt; 3.0 </sub></p></li>
+</ul>
+<h2 id="other">Other</h2>
+<ul>
+<li><strong>vcftools</strong></li>
+</ul>
+<h1 id="synopsis">Synopsis</h1>
+<p>usage:</p>
+<pre><code>chromoprocessor file_names action location [-h] [--n-region] [--verbose, -v]</code></pre>
+<h2 id="arguments">Arguments</h2>
+<ul>
+<li><code>infile</code>: a file containing the sames of the BAM files to process.</li>
+<li><code>action</code>: the action for VarScan to run.</li>
+<li><code>location</code>: the location of the VarScan jar.</li>
+</ul>
+<h2 id="options">Options</h2>
+<ul>
+<li><code>--n-region</code>: the number of regions to process in parallel. The default is two.</li>
+<li><code>--verbose</code>: output additional information.</li>
+</ul>
+<h1 id="examples">Examples</h1>
+<p>The easiset way to create the file with the name of the BAM files to process is with <code>ls</code> if you're going to call <code>chromoprocessor</code> from the same directory where the BAM files are, or with <code>find</code> otherwise, i.e <code>ls *.bam &gt; to_process.txt</code>. Of course, the name of the file is completely arbitrary and can be anything.</p>
+<p>After the file is produced it's as simple as</p>
+<pre><code>chromoprocessor to_process.txt mpileup2snp /home/You/VarScan.jar -v</code></pre>
+<p>If you have the hardware and you would like the BAM files to be processed quicker, you can run more jobs in parallel</p>
+<pre><code>chromoprocessor to_process.txt mpileup2snp /home/You/VarScan.jar -v --n-region=6</code></pre>
+<h1 id="notes">Notes</h1>
+<ul>
+<li>A <code>varscan.conf</code> and a <code>samtools.conf</code> are expected to be in the current working directory when the program is called. The files should contain the arguments and parameters you want to pass to VarScan and samtools respectively. Examples of each can be find in the repository.</li>
+</ul>
+<h2 id="todo">TODO</h2>
+<ul>
+<li>add support for <code>--vcf-sample-list</code></li>
+<li>add ability to specify which regions to process</li>
+</ul>
+</body>
+</html>

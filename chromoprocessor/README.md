@@ -16,6 +16,7 @@ Parallelizes a command similar to
 * __futures__
 
     <sub> \* only if using a Python version &lt; 3.0 </sub>
+
 ## Other
 * __vcftools__
 
