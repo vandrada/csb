@@ -36,7 +36,7 @@ two.
 
 # Examples
 The easiset way to create the file with the name of the BAM files to process is
-with `ls` if you're gonna call `chromoprocessor` from the same directory where
+with `ls` if you're going to call `chromoprocessor` from the same directory where
 the BAM files are, or with `find` otherwise, i.e `ls *.bam > to_process.txt`. Of
 course, the name of the file is completely arbitrary and can be anything.
 
