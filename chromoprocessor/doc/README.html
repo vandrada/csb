@@ -11,8 +11,8 @@
 <h1 id="name">Name</h1>
 <p>chromoprocessor</p>
 <h1 id="description">Description</h1>
-<p>Processes multiple BAM files by splitting each BAM file into it's regions. Parallelizes a command similar to</p>
-<pre><code>samtools mpileup 1.bam 2.bam ... n.bam | java -jar VarScan &gt; out.vcf</code></pre>
+<p>Processes multiple BAM files by splitting each BAM file into its regions. Parallelizes a command similar to</p>
+<pre><code>samtools mpileup 1.bam 2.bam [...] n.bam | java -jar VarScan &gt; out.vcf</code></pre>
 <h1 id="dependencies">Dependencies</h1>
 <h2 id="python-modules">Python Modules</h2>
 <ul>
@@ -31,7 +31,7 @@
 <pre><code>chromoprocessor file_names action location [-h] [--n-region] [--verbose, -v]</code></pre>
 <h2 id="arguments">Arguments</h2>
 <ul>
-<li><code>infile</code>: a file containing the sames of the BAM files to process.</li>
+<li><code>file_names</code>: a file containing the sames of the BAM files to process.</li>
 <li><code>action</code>: the action for VarScan to run.</li>
 <li><code>location</code>: the location of the VarScan jar.</li>
 </ul>

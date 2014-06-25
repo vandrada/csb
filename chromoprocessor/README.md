@@ -2,10 +2,10 @@
 chromoprocessor
 
 # Description
-Processes multiple BAM files by splitting each BAM file into it's regions.
+Processes multiple BAM files by splitting each BAM file into its regions.
 Parallelizes a command similar to
 
-    samtools mpileup 1.bam 2.bam ... n.bam | java -jar VarScan > out.vcf
+    samtools mpileup 1.bam 2.bam [...] n.bam | java -jar VarScan > out.vcf
 
 # Dependencies
 ## Python Modules
@@ -26,7 +26,7 @@ usage:
     chromoprocessor file_names action location [-h] [--n-region] [--verbose, -v]
 
 ## Arguments
-* `infile`: a file containing the sames of the BAM files to process.
+* `file_names`: a file containing the sames of the BAM files to process.
 * `action`: the action for VarScan to run.
 * `location`: the location of the VarScan jar.
 
