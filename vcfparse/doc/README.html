@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="name">Name</h1>
+<p>vcfparse</p>
+<h1 id="description">Description</h1>
+<p>Parses a vcf file and extracts the specified regions.</p>
+<h1 id="dependencies">Dependencies</h1>
+<h2 id="python-modules">Python Modules</h2>
+<ul>
+<li><a href="https://github.com/jamescasbon/PyVCF">PyVCF</a></li>
+</ul>
+<h1 id="synopsis">Synopsis</h1>
+<p>vcfparse vcf_file --fields [..] [-h] [--pretty]</p>
+<h2 id="arguments">Arguments</h2>
+<ul>
+<li><code>vcf_file</code>: the vcf file to parse</li>
+<li><code>--fields</code>: the fields to extract from the vcf file.</li>
+</ul>
+<h2 id="options">Options</h2>
+<ul>
+<li><code>--pretty</code>: prints a header</li>
+</ul>
+<h1 id="examples">Examples</h1>
+<pre><code>vcfparse test.vcf --fields gq dp sdp ad</code></pre>
+<p>Will print out the value for the GQ, DP, SDP, and AD fields from test.vcf with output similar to this:</p>
+<pre><code>34 27 27 2                     60 41 41 17
+
+
+255 259 260 170                255 175 175 111
+                               41 14 14 10
+                               6 15 15 5</code></pre>
+<p>While</p>
+<pre><code>vcfparse test.vcf --fields gq dp sdp ad --pretty</code></pre>
+<p>will produce output similar to this</p>
+<pre><code>                Sample1                         Sample2
+                GQ DP SDP AD                    GQ DP SDP AD
+chr10:181479     34 27 27 2                     60 41 41 17
+chr10:649857
+chr10:649859
+chr10:1034412    255 259 260 170                255 175 175 111
+chr10:1041487                                   41 14 14 10
+chr10:1056169                                   6 15 15 5</code></pre>
+</body>
+</html>
