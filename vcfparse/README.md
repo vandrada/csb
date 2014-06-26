@@ -9,7 +9,7 @@ Parses a vcf file and extracts the specified regions.
 * [PyVCF](https://github.com/jamescasbon/PyVCF)
 
 # Synopsis
-vcfparse vcf_file --fields [..] [-h] [--pretty]
+vcfparse vcf_file --fields [...] [-h] [--pretty]
 
 ## Arguments
 * `vcf_file`: the vcf file to parse
@@ -45,3 +45,7 @@ will produce output similar to this
     chr10:1034412    255 259 260 170                255 175 175 111
     chr10:1041487                                   41 14 14 10
     chr10:1056169                                   6 15 15 5
+
+# Thanks
+Thanks to the people who have contributed to PyVCF for allowing me to write less
+than one hundred lines of code:)
