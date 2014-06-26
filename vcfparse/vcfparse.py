@@ -5,6 +5,11 @@ import sys
 import argparse
 
 def header(samples, fields):
+    """
+    Prints a fugly header
+    :param samples: the name of the samples to use in the header
+    :param fields: the name of the fields to use in the header
+    """
     f = ""
     for sample in samples:
         print SEP + "{0:15}".format(sample),
@@ -18,6 +23,11 @@ def header(samples, fields):
     print
 
 def parse(vcf_file, fields):
+    """
+    Parses and prints specified fields from a vcf file
+    :param vcf_file: the vcf file to parse
+    :param fields: the fields to parse and print from the vcf file.
+    """
     data = []
     samples = vcf_file.samples
 
