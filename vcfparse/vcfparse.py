@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import vcf
+import sys
 import argparse
 
 def header(samples, fields):
@@ -47,5 +48,9 @@ if __name__ == '__main__':
 
     SEP = '\t\t'
     vcf_file = vcf.Reader(open(args.vcf_file, 'r'))
+
+    if not args.fields:
+        print "no fields selected"
+        sys.exit()
 
     parse(vcf_file, [field.upper() for field in args.fields])
