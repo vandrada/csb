@@ -18,37 +18,24 @@
 <li><a href="https://github.com/jamescasbon/PyVCF">PyVCF</a></li>
 </ul>
 <h1 id="synopsis">Synopsis</h1>
-<p>vcfparse vcf_file --fields [...] [-h] [--pretty]</p>
+<p>vcfparse vcf_file [field1 field2 ... fieldN] [-h]</p>
 <h2 id="arguments">Arguments</h2>
 <ul>
 <li><code>vcf_file</code>: the vcf file to parse</li>
-<li><code>--fields</code>: the fields to extract from the vcf file.</li>
+<li><code>fields</code>: a list of fields to extract from the vcf file.</li>
 </ul>
 <h2 id="options">Options</h2>
 <ul>
-<li><code>--pretty</code>: prints a header</li>
+<li><code>--help, -h</code>: print a helpful message and exit.</li>
 </ul>
 <h1 id="examples">Examples</h1>
-<pre><code>vcfparse test.vcf --fields gq dp sdp ad</code></pre>
-<p>Will print out the value for the GQ, DP, SDP, and AD fields from test.vcf with output similar to this:</p>
-<pre><code>34 27 27 2                     60 41 41 17
-
-
-255 259 260 170                255 175 175 111
-                               41 14 14 10
-                               6 15 15 5</code></pre>
-<p>While</p>
-<pre><code>vcfparse test.vcf --fields gq dp sdp ad --pretty</code></pre>
-<p>will produce output similar to this</p>
-<pre><code>                Sample1                         Sample2
-                GQ DP SDP AD                    GQ DP SDP AD
-chr10:181479     34 27 27 2                     60 41 41 17
-chr10:649857
-chr10:649859
-chr10:1034412    255 259 260 170                255 175 175 111
-chr10:1041487                                   41 14 14 10
-chr10:1056169                                   6 15 15 5</code></pre>
+<p>A command such as</p>
+<pre><code>vcfparse test.vcf gq dp sdp ad</code></pre>
+<p>will create four separate text files, one for each field. Each text file has a header of the form</p>
+<pre><code>Chromosome  Position    Sample1 [...]   SampleN</code></pre>
+<p>which is tab separated and each subsequent line will look something like this</p>
+<pre><code>chr10   181479  27      41</code></pre>
 <h1 id="thanks">Thanks</h1>
-<p>Thanks to the people who have contributed to PyVCF for allowing me to write less than one hundred lines of code:)</p>
+<p>Thanks to the people who have contributed to PyVCF for allowing me to write <em>way</em> less than one hundred lines of code:)</p>
 </body>
 </html>
