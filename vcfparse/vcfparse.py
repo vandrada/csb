@@ -4,63 +4,49 @@ import vcf
 import sys
 import argparse
 
-def header(samples, fields):
+def header(samples):
     """
-    Prints a fugly header
+    Prints a fugly header.
     :param samples: the name of the samples to use in the header
-    :param fields: the name of the fields to use in the header
     """
-    f = ""
-    for sample in samples:
-        print SEP + "{0:15}".format(sample),
-    print
+    s = "{}\t{}\t".format("Chromosome", "Position")
+    s += '\t'.join(samples)
+    s += '\n'
 
-    for field in fields:
-        f += "{0:{1}} ".format(field, len(field))
+    return s
 
-    for sample in samples:
-        print SEP + "{0:20}".format(f),
-    print
-
-def parse(vcf_file, fields):
+def parse(vcf_file, field):
     """
-    Parses and prints specified fields from a vcf file
+    Parses and prints specified fields from a vcf file.
     :param vcf_file: the vcf file to parse
     :param fields: the fields to parse and print from the vcf file.
     """
-    data = []
     samples = vcf_file.samples
 
-    # header
-    if args.pretty:
-        header(samples, fields)
-
     # begin parsing (and printing)
+    out = open(field + ".txt", "w+")
+    out.write(header(samples))
+
     for record in vcf_file:
-        if args.pretty:
-            print "{0:4}:{1:10}".format(record.CHROM, str(record.POS)),
+        out.write("{}\t{}".format(record.CHROM, record.POS))
         for sample in record:
-            if sample.called:
-                for field in fields:
-                    data.append(str(sample[field]))
-            print "{0:30}".format(' '.join(data)),
-            data = []
-        print
+            if sample[field] == None:
+                out.write('\t{}'.format(NA))
+            else:
+                out.write('\t{}'.format(str(sample[field])))
+        out.write('\n')
+
+    out.close()
 
 if __name__ == '__main__':
     argparse = argparse.ArgumentParser()
     argparse.add_argument('vcf_file', help="the vcf file to parse")
-    argparse.add_argument('--fields', nargs='+', type=str, default=[],
+    argparse.add_argument('fields', nargs='+', type=str,
         help="the sections to parse from the vcf file")
-    argparse.add_argument('--pretty', action="store_true",
-        help="print a header and chromosome information")
     args = argparse.parse_args()
 
-    SEP = '\t\t'
-    vcf_file = vcf.Reader(open(args.vcf_file, 'r'))
+    NA = './.'
 
-    if not args.fields:
-        print "no fields selected"
-        sys.exit()
-
-    parse(vcf_file, [field.upper() for field in args.fields])
+    for field in [field.upper() for field in args.fields]:
+        vcf_file = vcf.Reader(open(args.vcf_file, 'r'))
+        parse(vcf_file, field)
