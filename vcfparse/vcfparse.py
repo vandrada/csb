@@ -9,7 +9,7 @@ def header(samples):
     Prints a fugly header.
     :param samples: the name of the samples to use in the header
     """
-    s = "{}\t{}\t".format("Chromosome", "Position")
+    s = "{0}\t{1}\t".format("Chromosome", "Position")
     s += '\t'.join(samples)
     s += '\n'
 
@@ -28,12 +28,12 @@ def parse(vcf_file, field):
     out.write(header(samples))
 
     for record in vcf_file:
-        out.write("{}\t{}".format(record.CHROM, record.POS))
+        out.write("{0}\t{1}".format(record.CHROM, record.POS))
         for sample in record:
             if sample[field] == None:
-                out.write('\t{}'.format(NA))
+                out.write('\t{0}'.format(NA))
             else:
-                out.write('\t{}'.format(str(sample[field])))
+                out.write('\t{0}'.format(str(sample[field])))
         out.write('\n')
 
     out.close()
