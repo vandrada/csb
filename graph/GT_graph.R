@@ -3,8 +3,6 @@ library(ggplot2)
 library(gridExtra)
 library(gtools)
 
-tables <- function(frame) lapply(frame, table)
-
 plot.sample <- function(samp, par) {
   ggplot(samp, aes_string(x=grep(par, colnames(samp), value=T))) +
     geom_bar() + 
@@ -15,8 +13,7 @@ plot.sample <- function(samp, par) {
 }
 
 # from Josh O'Brien at StackOverflow
-# https://stackoverflow.com/questions/10706753/
-# how-do-i-arrange-a-variable-list-of-plots-using-grid-arrange
+# https://stackoverflow.com/questions/10706753/how-do-i-arrange-a-variable-list-of-plots-using-grid-arrange
 make.plots <- function(df, name) {
   # sort colnames
   gs <- lapply(mixedsort(colnames(df)), FUN=function(x) plot.sample(df, x))
