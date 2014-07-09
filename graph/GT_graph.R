@@ -4,6 +4,9 @@ library(ggplot2)
 library(gridExtra)
 library(gtools)
 
+gt.file <- "~/Desktop/run2/GT.txt"
+file.names <- "~/Desktop/run2/processed.txt"
+
 # plots a single sample
 plot.sample <- function(samp, par) {
   ggplot(na.omit(samp), aes_string(x=grep(par, colnames(samp), value=T))) +
@@ -27,9 +30,9 @@ make.plots <- function(df, name) {
 }
 
 # Read in the initial data
-gt <- read.table("~/Desktop/run2/GT.txt", header=TRUE, fill=TRUE, na.string="./.")
+gt <- read.table(gt.file, header=TRUE, fill=TRUE, na.string="./.")
 colnames(gt) <-
-  c("Chromosome", "Position", readLines("~/Desktop/run2/processed.txt"))
+  c("Chromosome", "Position", readLines(file.names))
 
 # create the data for each cell line
 c10 <- gt[, grep("C10", names(gt), value=T)]
