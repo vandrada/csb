@@ -7,10 +7,10 @@ library(gtools)
 # plots a single sample
 plot.sample <- function(samp, par) {
   ggplot(na.omit(samp), aes_string(x=grep(par, colnames(samp), value=T))) +
-    geom_bar() + 
+    geom_bar() +
     labs(x="Genotype", y="Count", title=par) +
     stat_bin(geom="text", aes(label=..count..), vjust=0.10, hjust=0.0,
-             size=3, colour="red") + 
+             size=3, colour="red") +
     theme(legend.position="none", text=element_text(size=6))
 }
 # plots multiple samples
