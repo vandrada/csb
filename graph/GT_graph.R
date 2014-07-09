@@ -24,7 +24,7 @@ make.plots <- function(df, name) {
   gs <- lapply(mixedsort(colnames(df)), FUN=function(x) plot.sample(df, x))
   n <- length(gs)
   nCol <- floor(sqrt(n))
-  pdf(paste(name, "pdf", sep="."), width=8, height=11)
+  pdf(paste(name, "pdf", sep="."), width=11, height=8)
   do.call("grid.arrange", c(gs))
   dev.off()
 }
