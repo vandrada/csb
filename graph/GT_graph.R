@@ -1,8 +1,10 @@
 #!/usr/bin/env Rscript
+
 library(ggplot2)
 library(gridExtra)
 library(gtools)
 
+# plots a single sample
 plot.sample <- function(samp, par) {
   ggplot(samp, aes_string(x=grep(par, colnames(samp), value=T))) +
     geom_bar() + 
@@ -11,9 +13,9 @@ plot.sample <- function(samp, par) {
              size=3, colour="red") + 
     theme(legend.position="none", text=element_text(size=6))
 }
-
-# from Josh O'Brien at StackOverflow
-# https://stackoverflow.com/questions/10706753/how-do-i-arrange-a-variable-list-of-plots-using-grid-arrange
+# plots multiple samples
+# ** from Josh O'Brien at StackOverflow
+# ** https://stackoverflow.com/questions/10706753/how-do-i-arrange-a-variable-list-of-plots-using-grid-arrange
 make.plots <- function(df, name) {
   # sort colnames
   gs <- lapply(mixedsort(colnames(df)), FUN=function(x) plot.sample(df, x))
@@ -26,7 +28,6 @@ make.plots <- function(df, name) {
 
 # Read in the initial data
 gt <- read.table("~/Desktop/run2/GT.txt", header=TRUE, fill=TRUE)
-headers <- as.list(read.table("~/Desktop/run2/processed.txt", sep="\n"))
 colnames(gt) <-
   c("Chromosome", "Position", readLines("~/Desktop/run2/processed.txt"))
 
