@@ -13,7 +13,7 @@ plot.sample <- function(samp, par) {
     geom_bar() +
     labs(x="Genotype", y="Count", title=par) +
     stat_bin(geom="text", aes(label=..count..), vjust=0.10, hjust=0.0,
-             size=3, colour="red") +
+             size=3, colour="gray45") +
     theme(legend.position="none", text=element_text(size=6))
 }
 
