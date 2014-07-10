@@ -16,6 +16,7 @@ plot.sample <- function(samp, par) {
              size=3, colour="red") +
     theme(legend.position="none", text=element_text(size=6))
 }
+
 # plots multiple samples
 # ** from Josh O'Brien at StackOverflow
 # ** https://stackoverflow.com/questions/10706753/how-do-i-arrange-a-variable-list-of-plots-using-grid-arrange
