@@ -15,7 +15,9 @@ plot.sample <- function(samp, par) {
   ggplot(na.omit(temp), aes_string(x="sample")) +
     geom_bar() +
     labs(x="Frequency", y="Count", title=par) +
-    theme(legend.position="none", text=element_text(size=6))
+    theme(legend.position="none", text=element_text(size=8)) +
+    stat_bin(geom="text", aes(label=..count..), vjust=0.10, hjust=0.0,
+             size=3, colour="gray45")
 }
 
 # plots multiple samples
