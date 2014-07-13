@@ -69,11 +69,13 @@ def write_fields(in_file):
         line = record.format(get("chr"), get("co"), get("db"), get("ref"),
                              get("var"), ".", ".", ".", FORMAT,
                              create_record())
-        sys.stdout.write(line)
+        out.write(line)
 
 if __name__ == '__main__':
     argparse = argparse.ArgumentParser()
     argparse.add_argument("file", help="the csv file to process")
+    argparse.add_argument("--out", dest="outfile", default=None,
+        help="the output file")
     args = argparse.parse_args()
 
     # Constants
@@ -85,6 +87,10 @@ if __name__ == '__main__':
 
     in_file = csv.reader(open(args.file, "r"))
     in_file.next()      # read the first line and discard
+    out = sys.stdout
 
-    sys.stdout.write(header())
+    if args.outfile != None:
+        out = open(args.outfile, "w+")
+
+    out.write(header())
     write_fields(in_file)
