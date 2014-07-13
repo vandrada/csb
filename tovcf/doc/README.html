@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="name">Name</h1>
+<p>tovcf</p>
+<h1 id="description">Description</h1>
+<p>Transfroms a csv file to a VCF file.</p>
+<h1 id="dependencies">Dependencies</h1>
+<ul>
+<li><p><a href="https://pypi.python.org/pypi/argparse">argparse</a></p>
+<p><sub> * only if using a Python version &lt; 2.7 </sub></p></li>
+</ul>
+<h1 id="synopsis">Synopsis</h1>
+<p>usage:</p>
+<pre><code>tovcf file.csv [-h] [--out output.vcf]</code></pre>
+<h2 id="arguments">Arguments</h2>
+<ul>
+<li><code>file.csv</code>: the Excel file converted to a csv file.</li>
+</ul>
+<h2 id="options">Options</h2>
+<ul>
+<li><code>--out</code>: the output file to write to. The default is stdout.</li>
+</ul>
+<h1 id="examples">Examples</h1>
+<p>To write the VCF file to stdout simply call</p>
+<pre><code>tovcf input.vcf</code></pre>
+<p>If you want to specify the file to write to, simply call</p>
+<pre><code>tovcf input.vcf --out out.vcf</code></pre>
+<h1 id="notes">Notes</h1>
+<p>Since the default behavior is to write to stdout you can also pipe the output to another program or redirect it to a file manually.</p>
+</body>
+</html>
