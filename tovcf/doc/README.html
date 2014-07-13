@@ -11,18 +11,19 @@
 <h1 id="name">Name</h1>
 <p>tovcf</p>
 <h1 id="description">Description</h1>
-<p>Transfroms a csv file to a VCF file.</p>
+<p>Transfroms an Excel file to a VCF file.</p>
 <h1 id="dependencies">Dependencies</h1>
 <ul>
 <li><p><a href="https://pypi.python.org/pypi/argparse">argparse</a></p>
 <p><sub> * only if using a Python version &lt; 2.7 </sub></p></li>
+<li><p><a href="https://pypi.python.org/pypi/xlrd">xlrd</a></p></li>
 </ul>
 <h1 id="synopsis">Synopsis</h1>
 <p>usage:</p>
-<pre><code>tovcf file.csv [-h] [--out output.vcf]</code></pre>
+<pre><code>tovcf file.xls [-h] [--out output.vcf]</code></pre>
 <h2 id="arguments">Arguments</h2>
 <ul>
-<li><code>file.csv</code>: the Excel file converted to a csv file.</li>
+<li><code>file.xls</code>: the Excel file to convert to a VCF file. xlsx files are also supported.</li>
 </ul>
 <h2 id="options">Options</h2>
 <ul>
@@ -30,10 +31,12 @@
 </ul>
 <h1 id="examples">Examples</h1>
 <p>To write the VCF file to stdout simply call</p>
-<pre><code>tovcf input.vcf</code></pre>
+<pre><code>tovcf input.xls</code></pre>
 <p>If you want to specify the file to write to, simply call</p>
 <pre><code>tovcf input.vcf --out out.vcf</code></pre>
 <h1 id="notes">Notes</h1>
-<p>Since the default behavior is to write to stdout you can also pipe the output to another program or redirect it to a file manually.</p>
+<ul>
+<li>Since the default behavior is to write to stdout you can also pipe the output to another program or redirect it to a file manually.</li>
+</ul>
 </body>
 </html>
