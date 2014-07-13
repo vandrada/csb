@@ -8,7 +8,7 @@ import argparse
 def header():
     """
     Creates the metadata lines and the header for the VCF file.
-    :return: the metadata and the header
+    :return: the metadata and the header as strings
     """
     # lines for the metadata
     meta =\
@@ -48,10 +48,9 @@ def genotype(ref, var):
 
 def write_fields(in_file):
     """
-    Transforms each line in the csv file to a VCF line.
+    Transforms each line in the csv file to a VCF line and prints it to stdout.
     :param in_file: the csv file
     """
-    # inner function just for the closure
     def get(field):
         item = row[FIELDS[field]]
         if item == 'NULL':
