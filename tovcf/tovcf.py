@@ -14,6 +14,7 @@ def header():
     meta =\
         ["fileformat=VCFv4.1",
          "fileDate={0}".format(time.strftime("%Y%m%d")),
+         "source=tovcf",
          """FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">""",
          """FORMAT=<ID=COV,Number=1,Type=Integer,Description="Coverage">""",
          """FORMAT=<ID=QS,Number=1,Type=Integer,Description="Q Score">""",
