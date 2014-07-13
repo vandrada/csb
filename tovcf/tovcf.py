@@ -36,9 +36,9 @@ def header():
 
 def genotype(ref, var):
     """
-    Calculates the genotype from reference and var
-    :param ref: the reference
-    :param var: the variant sequence
+    Calculates the genotype from the reference allele and the variant allele(s).
+    :param ref: the reference allele
+    :param var: the variant allele(s)
     :return: a string for the genotype according to VCF spec(0/0, 0/1, etc.)
     """
     genotype = lambda allele: "0" if ref == allele else "1"
@@ -48,15 +48,11 @@ def genotype(ref, var):
 
 def write_fields(in_file):
     """
-    Transforms each line in the csv file to a VCF line and prints it to stdout.
+    Transforms each line in the csv file to a VCF line and writes it to `out`.
     :param in_file: the csv file
     """
-    def get(field):
-        item = row[FIELDS[field]]
-        if item == 'NULL':
-            return '.'
-        else:
-            return item
+    get = lambda field: '.' if row[FIELDS[field]] == 'NULL'\
+                            else row[FIELDS[field]]
 
     create_record = lambda: ":".join([genotype(get("ref"), get("var")),
                                       get("cov"), get("qs"), get("trans"),
@@ -67,8 +63,7 @@ def write_fields(in_file):
     record = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n"
     for row in in_file:
         line = record.format(get("chr"), get("co"), get("db"), get("ref"),
-                             get("var"), ".", ".", ".", FORMAT,
-                             create_record())
+                             get("var"), ".", ".", ".", FORMAT, create_record())
         out.write(line)
 
 if __name__ == '__main__':
