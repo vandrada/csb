@@ -84,13 +84,13 @@ def write_fields(in_file):
     for row in in_file:
         line = record.format(get("CHR"), get("CO"), get("DB"), get("REF"),
                              get("VAR"), ".", ".", ".", FORMAT, create_record())
-        out.write(line)
+        OUT.write(line)
 
 if __name__ == '__main__':
     argparse = argparse.ArgumentParser()
     argparse.add_argument("file", help="the xls(x) file to process")
-    argparse.add_argument("--out", dest="outfile", default=None,
-        help="the output file")
+    argparse.add_argument("--stdout", action="store_true", dest="to_stdout",
+        help="output goes to stdout instead of a file")
     args = argparse.parse_args()
 
     # Constants
@@ -100,15 +100,16 @@ if __name__ == '__main__':
             "CM", "PM", "DB", "OAS", "EAS"]
     FIELDS = dict(zip(cols, range(len(cols))))
 
-    csv_file = create_csv(args.file)
-    in_file = csv.reader(open(csv_file, "r"))
-    in_file.next()      # read the first line and discard
-    out = sys.stdout
+    csv_name = create_csv(args.file)
+    csv_file = csv.reader(open(csv_name, "r"))
 
-    if args.outfile != None:
-        out = open(args.outfile, "w+")
+    if args.to_stdout:
+        OUT = sys.stdout
+    else:
+        OUT = open(os.path.splitext(csv_name)[0] + ".vcf", "w+")
 
-    out.write(header())
-    write_fields(in_file)
+    csv_file.next()      # read the first line and discard
+    OUT.write(header())
+    write_fields(csv_file)
 
-    os.remove(csv_file)
+    os.remove(csv_name)
