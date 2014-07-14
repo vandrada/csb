@@ -35,7 +35,7 @@ def header():
          "fileDate={0}".format(time.strftime("%Y%m%d")),
          "source=tovcf",
          """FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">""",
-         """FORMAT=<ID=COV,Number=1,Type=Integer,Description="Coverage">""",
+         """FORMAT=<ID=COV,Number=1,Type=String,Description="Coverage">""",
          """FORMAT=<ID=QS,Number=1,Type=Integer,Description="Q Score">""",
          """FORMAT=<ID=TS,Number=1,Type=String,Description="Transcript">""",
          """FORMAT=<ID=CM,Number=1,Type=String,Description="c. Mutation">""",
