@@ -59,17 +59,18 @@ def genotype(ref, var):
     Calculates the genotype from the reference allele and the variant allele(s).
     :param ref: the reference allele
     :param var: the variant allele(s)
-    :return: a string for the genotype according to VCF spec(0/0, 0/1, etc.)
+    :return: a string for the genotype according to VCF spec (0/0, 0/1, etc.)
     """
     genotype = lambda allele: "0" if ref == allele else "1"
     alleles = list(var)
 
     return "{}/{}".format(*[genotype(allele) for allele in alleles])
 
-def write_fields(in_file):
+def write_fields(in_file, out):
     """
     Transforms each line in the csv file to a VCF line and writes it to `out`.
     :param in_file: the csv file
+    :param out: the location to write to
     """
     get = lambda field: '.' if row[FIELDS[field]] == 'NULL'\
                             else row[FIELDS[field]]
@@ -84,11 +85,32 @@ def write_fields(in_file):
     for row in in_file:
         line = record.format(get("CHR"), get("CO"), get("DB"), get("REF"),
                              get("VAR"), ".", ".", ".", FORMAT, create_record())
-        OUT.write(line)
+        out.write(line)
+
+def process_xls(xls):
+    """
+    Converts a single xls file to a VCF file.
+    :param xls: the xls file to process
+    """
+    csv_name = create_csv(xls)
+    csv_file = csv.reader(open(csv_name, "r"))
+
+    csv_file.next()     # read the first line and discard
+
+    if args.to_stdout:
+        out = sys.stdout
+    else:
+        out = open(os.path.splitext(csv_name)[0] + ".vcf", "w+")
+
+    out.write(header())
+    write_fields(csv_file, out)
+
+    os.remove(csv_name)
 
 if __name__ == '__main__':
     argparse = argparse.ArgumentParser()
-    argparse.add_argument("file", help="the xls(x) file to process")
+    argparse.add_argument("files", nargs='+',
+        help="the xls(x) files to process")
     argparse.add_argument("--stdout", action="store_true", dest="to_stdout",
         help="output goes to stdout instead of a file")
     args = argparse.parse_args()
@@ -100,16 +122,5 @@ if __name__ == '__main__':
             "CM", "PM", "DB", "OAS", "EAS"]
     FIELDS = dict(zip(cols, range(len(cols))))
 
-    csv_name = create_csv(args.file)
-    csv_file = csv.reader(open(csv_name, "r"))
-
-    if args.to_stdout:
-        OUT = sys.stdout
-    else:
-        OUT = open(os.path.splitext(csv_name)[0] + ".vcf", "w+")
-
-    csv_file.next()      # read the first line and discard
-    OUT.write(header())
-    write_fields(csv_file)
-
-    os.remove(csv_name)
+    for xls in args.files:
+        process_xls(xls)
