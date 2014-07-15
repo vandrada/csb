@@ -52,7 +52,7 @@ def header():
     meta = ["##" + line + "\n" for line in meta]
     head = '\t'.join(head) + '\n'
 
-    return (''.join(meta) + head)
+    return ''.join(meta) + head
 
 def genotype(ref, var):
     """
