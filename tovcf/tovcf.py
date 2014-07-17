@@ -40,8 +40,10 @@ def header():
          """FORMAT=<ID=TS,Number=1,Type=String,Description="Transcript">""",
          """FORMAT=<ID=CM,Number=1,Type=String,Description="c. Mutation">""",
          """FORMAT=<ID=PM,Number=1,Type=String,Description="p. Mutation">""",
-         """FORMAT=<ID=OAS,Number=1,Type=String,Description="1000Genome Allele Counts">""",
-         """FORMAT=<ID=EAS,Number=1,Type=String,Description="ESP Allele Counts">"""
+         """FORMAT=<ID=OAS,Number=1,Type=String,Description="""
+            """"1000Genome Allele Counts">""",
+         """FORMAT=<ID=EAS,Number=1,Type=String,Description="""
+            """"ESP Allele Counts">"""
         ]
 
     # standard header line
