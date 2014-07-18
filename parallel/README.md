@@ -1,3 +1,4 @@
+# ** DEPRECATED **
 # Name
 Parallel Region Analyzer
 
