@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Installs the dependencies of chromoprocessor
+Installs the dependencies for all Python programs in this repo
 """
 
 import sys
@@ -40,6 +40,10 @@ def main():
         "http://pypi.python.org/packages/source/a/argparse/argparse-1.2.1.tar.gz"
     futures_url =\
         "http://pypi.python.org/packages/source/f/futures/futures-2.1.6.tar.gz"
+    xlrd_url =\
+        "https://pypi.python.org/packages/source/x/xlrd/xlrd-0.9.3.tar.gz"
+    vcf_url =\
+        "https://pypi.python.org/packages/source/P/PyVCF/PyVCF-0.6.0.tar.gz"
     try:
         import argparse
     except ImportError:
@@ -48,6 +52,15 @@ def main():
         import concurrent.futures
     except ImportError:
         install("concurrent", futures_url)
+    try:
+        import xlrd
+    except ImportError:
+        install("xlrd", xlrd_url)
+    try:
+        import vcf
+    except ImportError:
+        install("PyVcf", vcf_url)
 
 if __name__ == '__main__':
     HOME = os.path.expanduser('~')
+    main()
