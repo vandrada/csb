@@ -9,16 +9,13 @@ Parallelizes a command similar to
 
 # Dependencies
 ## Python Modules
-* __pysam__
-* __argparse__
+* [pysam](https://pypi.python.org/pypi/pysam)
+* [argparse](https://pypi.python.org/pypi/argparse)
 
     <sub> \* only if using a Python version &lt; 2.7 </sub>
-* __futures__
+* [futures](https://pypi.python.org/pypi/futures)
 
     <sub> \* only if using a Python version &lt; 3.0 </sub>
-
-## Other
-* __vcftools__
 
 # Synopsis
 usage:
