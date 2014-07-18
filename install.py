@@ -20,7 +20,7 @@ def dir_name(url):
 def install(lib, url):
     os.chdir(HOME)
     lib_dir = dir_name(lib)
-    print "installing %s to ~/%s" (lib, lib_dir)
+    print "installing %s to ~/%s" % (lib, lib_dir)
     urllib.urlretrieve(argparse, file=lib + ".tar.gz")
     # extract
     lib_tar = tarfile.open(lib + ".tar.gz")
@@ -64,3 +64,4 @@ def main():
 if __name__ == '__main__':
     HOME = os.path.expanduser('~')
     main()
+    print "All Python modules installed"
