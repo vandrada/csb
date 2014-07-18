@@ -3,14 +3,17 @@
 This is the git repo that contains all code written during the summer of 2014
 for the P20 internship.
 
-The following programs are included:
+The following directories/files are included:
 
-* __chromoprocessor__: processes _multiple_ bam files in parallel
-* __vcfparse__: extracts the specified regions from a VCF file
-* __tovcf__: converts an Excel file to a VCF file
-* __graph__: this directory contains R scripts written for specific data, they
-aren't meant to be general.
-* __chromosplit__: processes a _single_ bam file in parallel
+* __chromoprocessor/chromoprocessor.py__: processes _multiple_ bam files in
+parallel
+* __vcfparse/vcfparse.py__: extracts the specified regions from a VCF file
+* __tovcf/tovcf.py__: converts an Excel file to a VCF file
+* __graph/*.R__: this directory contains R scripts written for specific data,
+they aren't meant to be general.
+* __parallel/chromosplit.py__: processes a _single_ bam file in parallel
+* __install.py__: installs the Python modules needed for the programs in this
+repo.
 
 ## Clarification
 While `chromoprocessor` and `chromosplit` appear to be very similar, they are in
