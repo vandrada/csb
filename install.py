@@ -19,7 +19,7 @@ def dir_name(url):
 
 def install(lib, url):
     os.chdir(HOME)
-    lib_dir = dir_name(lib)
+    lib_dir = dir_name(url)
     print "installing %s to ~/%s" % (lib, lib_dir)
     urllib.urlretrieve(url, filename=lib + ".tar.gz")
     # extract
