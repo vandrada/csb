@@ -6,11 +6,11 @@ Processes multiple BAM files in parallel by splitting them into regions.
 
 import os
 import sys
-import pysam
 import time
 import subprocess
 import multiprocessing
 try:
+    import pysam
     from concurrent.futures import ThreadPoolExecutor
     from argparse import ArgumentParser
 except ImportError:
