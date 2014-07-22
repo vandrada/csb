@@ -13,15 +13,25 @@ import subprocess
 
 def dir_name(url):
     """
-    gets the would-be directory name from a pypi url
+    gets the would-be directory name from a pypi url.
+    :param url: the url to extract the name from.
     """
     return '.'.join(url.split('/')[-1].split('.')[:-2])
 
 def pip_install(lib):
+    """
+    Installs a library via pip.
+    :param lib: the library to install.
+    """
     subprocess.call(["pip", "install", lib, "--user"])
     print '\033[93m' + "installed " + lib + '\033[0m'
 
 def install(lib, url):
+    """
+    Installs a library manually.
+    :param lib: the library to install.
+    :param url: the url of the the library to install.
+    """
     os.chdir(HOME)
     lib_dir = dir_name(url)
     print "installing %s to ~/%s" % (lib, lib_dir)
@@ -75,10 +85,11 @@ def main():
         import vcf
     except ImportError:
         # PyVcf doens't install correctly on RHEL so we have to do it manually
+        # more info here: https://github.com/jamescasbon/PyVCF/issues/69
         install("PyVCF", pyvcf_url)
         pip_install("ordereddict")
 
 if __name__ == '__main__':
     HOME = os.path.expanduser('~')
     main()
-    print "All Python modules installed"
+    print '\033[93m' + "All Python modules installed" + '\033[0m'
