@@ -17,6 +17,10 @@ def dir_name(url):
     """
     return '.'.join(url.split('/')[-1].split('.')[:-2])
 
+def pip_install(lib):
+    subprocess.call(["pip", "install", lib, "--user"])
+    print '\033[93m' + "installed " + lib + '\033[0m'
+
 def install(lib, url):
     os.chdir(HOME)
     lib_dir = dir_name(url)
@@ -28,16 +32,21 @@ def install(lib, url):
     lib_tar.close()
     # install
     os.chdir(lib_dir)
+    if lib == "PyVCF":
+        subprocess.call(["cython", "vcf/cparse.pyx"])
     subprocess.call(['python', 'setup.py', 'install', '--user'])
     os.chdir(HOME)
     # clean up
     shutil.rmtree(lib_dir)
     os.remove(lib_tar.name)
+    print '\033[93m' + "installed " + lib + '\033[0m'
 
 def main():
     # URLs
     pip_url =\
         "https://pypi.python.org/packages/source/p/pip/pip-1.5.6.tar.gz"
+    pyvcf_url =\
+        "https://pypi.python.org/packages/source/P/PyVCF/PyVCF-0.6.0.tar.gz"
     try:
         import pip
     except ImportError:
@@ -45,27 +54,29 @@ def main():
     try:
         import argparse
     except ImportError:
-        subprocess.call(["pip", "install", "argparse", "--user"])
+        pip_install("argparse")
     try:
         import concurrent.futures
     except ImportError:
-        subprocess.call(["pip", "install", "concurrent.futures", "--user"])
-    try:
-        import pysam
-    except ImportError:
-        subprocess.call(["pip", "install", "pysam", "--user"])
-    try:
-        import xlrd
-    except ImportError:
-        subprocess.call(["pip", "install", "xlrd", "--user"])
+        pip_install("futures")
     try:
         import cython
     except ImportError:
-        subprocess.call(["pip", "install", "cython", "--user"])
+        pip_install("cython")
+    try:
+        import pysam
+    except ImportError:
+        pip_install("pysam")
+    try:
+        import xlrd
+    except ImportError:
+        pip_install("xlrd")
     try:
         import vcf
     except ImportError:
-        subprocess.call(["pip", "install", "pyvcf", "--user"])
+        # PyVcf doens't install correctly on RHEL so we have to do it manually
+        install("PyVCF", pyvcf_url)
+        pip_install("ordereddict")
 
 if __name__ == '__main__':
     HOME = os.path.expanduser('~')
