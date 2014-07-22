@@ -1,4 +1,5 @@
 # ** DEPRECATED **
+
 # Name
 Parallel Region Analyzer
 
@@ -32,7 +33,6 @@ Homebrew if using OS X. Be sure to export the `PERL5LIB` variable.
 * VarScan: install from [SourceForge](http://varscan.sourceforge.net/).
 
 # Synopsis
-usage:
 
     chromo_split infile action varscan_location
 
@@ -60,6 +60,8 @@ current working directory
 are piped into each other, avoiding disk IO. The directories for BAM files and
 mpileup files are not created. Equivalent to
 
+        samtools mpileup test.bam | java -jar Varscan.jar
+
 * `--n-procs`: the total number of concurrent processes to run at a time. The
 default is two processes.
 
@@ -81,8 +83,7 @@ The most basic usage is:
     chromo_split your.bam mpileup2snp VarScan.jar
 
 This command will run `mpileup2snp` on the regions of `your.bam`, processing two
-regions in parallel. This command only work if `your.bam` and `VarScan.jar` are
-under the current working directory.
+regions in parallel.
 
 There is also a `--verbose` flag.
 
@@ -116,7 +117,6 @@ pass the path to a `varscan.conf`
     chromo_split your.bam mpileup2snp VarScan.jar --varscan-conf=/home/You/varscan.conf
 
 # Notes
-* The program doesn't do any path expansion; i,e you cannot use `~` in a path
 * The program creates three directories in your working directory with the
 prefixes of `bam_`, `mpileup_`, and `vcf_` the suffix of each will be the name
 of the passed in file. i.e `chromo_split test.bam [...]` will create
@@ -130,49 +130,5 @@ mpileup files pass `--keep-mpileup`; finally, if you would like to keep all the
 files pass `--keep-all`. The vcf files are _always_ kept.
 
 * The `varscan.conf` and `samtools.conf` files are simply files where each
-argument and switch to pass to VarScan or samtools are on a single line. An
-example of each file is in `parallel/`.
-
-# Batch Processing BAM Files
-In order to process multiple BAM file at once, there is the program `dispatch`.
-
-## Description
-Processes all the BAM files in a given directory, calling `chromo_split` on each
-one.
-
-## Synopsis
-usage:
-
-    dispatch directory varscan_action varscan_location
-
-### Arguments
-* `directory`: the path to the directory to process.
-* `varscan_action`: the action for VarScan to run.
-* `varscan_location`: the location of the VarScan jar.
-
-### Options
-* `--n-bam`: the number of BAM files to process in parallel. The default value
-is two.
-* `--n-regions`: the number of regions in each BAM file to process in parallel.
-The default value is two.
-
-## Examples
-
-    dispatch /home/You/DirectoryWithBams mpileup2snp /home/You/VarScan.jar
-
-Will run `chromo_split` on two BAM files in `DirectoryWithBams` in parallel.
-`chromo_split` will process two regions in parallel, resulting in a total of
-four processes running.
-
-    dispatch /home/You/DirectoryWithBams mpileup2snp /home/You/VarScan.jar --n-bam=3
-
-Will run `chromo_split` on three BAM files in `DirectoryWithBams` in parallel.
-`chormo_split` will process two regions in parallel, resulting in a total of six
-processes running.
-
-## Notes
-* A `varscan.conf` file and a `samtools.conf` file is expected to be in the
-directory with the BAM files.
-
-* The arguments passed to `chromo_split` by default are: `--verbose`,
-`--with-pipe`, and `--n-procs=2`.
+argument and switch to pass to VarScan or samtools are on a single line. To see
+examples of these files look [here](../chromoprocessor/doc/README.html)

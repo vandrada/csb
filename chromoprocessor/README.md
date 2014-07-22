@@ -1,11 +1,13 @@
 # Name
-chromoprocessor
+chromoprocessor.py
 
 # Description
 Processes multiple BAM files by splitting each BAM file into its regions.
 Parallelizes a command similar to
 
     samtools mpileup 1.bam 2.bam [...] n.bam | java -jar VarScan > out.vcf
+
+The resulting VCF files--one for each region--will be in `vcf/`.
 
 # Dependencies
 ## Python Modules
@@ -18,12 +20,11 @@ Parallelizes a command similar to
     <sub> \* only if using a Python version &lt; 3.0 </sub>
 
 # Synopsis
-usage:
 
-    chromoprocessor file_names action location [-h] [--n-region] [--verbose, -v]
+    chromoprocessor file_names action location [-h] [--n-region] [--verbose | -v]
 
 ## Arguments
-* `file_names`: a file containing the sames of the BAM files to process.
+* `file_names`: a file containing the names of the BAM files to process.
 * `action`: the action for VarScan to run.
 * `location`: the location of the VarScan jar.
 
@@ -48,10 +49,21 @@ quicker, you can run more jobs in parallel
     chromoprocessor to_process.txt mpileup2snp /home/You/VarScan.jar -v --n-region=6
 
 # Notes
-* A `varscan.conf` and a `samtools.conf` are expected to be in the current
+A `varscan.conf` and a `samtools.conf` are expected to be in the current
 working directory when the program is called. The files should contain the
 arguments and parameters you want to pass to VarScan and samtools respectively.
-Examples of each can be find in the repository.
+
+A very minimal example of `samtools.conf` will be
+
+    -d
+    1000000
+
+And an example of `varscan.conf` will be
+
+    --output-vcf
+    1
+    --p-value
+    0.2
 
 ## TODO
 * add support for `--vcf-sample-list`

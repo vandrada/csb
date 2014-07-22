@@ -1,19 +1,23 @@
 # Name
-vcfparse
+vcfparse.py
 
 # Description
-Parses a vcf file and extracts the specified regions.
+Parses a VCF file and extracts the specified regions.
 
 # Dependencies
 ## Python Modules
 * [PyVCF](https://github.com/jamescasbon/PyVCF)
+* [argparse](https://pypi.python.org/pypi/argparse)
+
+    <sub> \* only if using a Python version &lt; 2.7 </sub>
 
 # Synopsis
-vcfparse vcf_file [field1 field2 ... fieldN] [-h]
+
+    vcfparse vcf_file [field1 field2 ... fieldN] [-h]
 
 ## Arguments
-* `vcf_file`: the vcf file to parse
-* `fields`: a list of fields to extract from the vcf file.
+* `vcf_file`: the VCF file to parse
+* `fields`: a list of fields to extract from the VCF file.
 
 ## Options
 * `--help, -h`: print a helpful message and exit.

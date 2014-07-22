@@ -1,5 +1,5 @@
 # Name
-tovcf
+tovcf.py
 
 # Description
 Transfroms an Excel file to a VCF file.
@@ -12,7 +12,6 @@ Transfroms an Excel file to a VCF file.
 * [xlrd](https://pypi.python.org/pypi/xlrd)
 
 # Synopsis
-usage:
 
     tovcf file.xls [file2.xls ...] [-h] [--stdout]
 
