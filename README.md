@@ -19,6 +19,8 @@ installs the Python modules needed for the programs in this repo.
 * [parallel/chromosplit.py](../parallel/doc/README.html): __deprecated__
 <strike>processes a _single_ bam file in parallel.</strike>
 
+<sub> ** links only work with local HTML documentation ** </sub>
+
 ## Clarification
 While `chromoprocessor` and `chromosplit` appear to be very similar, they are in
 fact very different from each other.
