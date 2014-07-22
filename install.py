@@ -38,27 +38,34 @@ def main():
     # URLs
     pip_url =\
         "https://pypi.python.org/packages/source/p/pip/pip-1.5.6.tar.gz"
-    install("pip", pip_url)
+    try:
+        import pip
+    except ImportError:
+        install("pip", pip_url)
     try:
         import argparse
     except ImportError:
-        subprocess.call(["pip", "install", "argparse"])
+        subprocess.call(["pip", "install", "argparse", "--user"])
     try:
         import concurrent.futures
     except ImportError:
-        subprocess.call(["pip", "install", "concurrent.futures"])
+        subprocess.call(["pip", "install", "concurrent.futures", "--user"])
     try:
         import pysam
     except ImportError:
-        subprocess.call(["pip", "install", "pysam"])
+        subprocess.call(["pip", "install", "pysam", "--user"])
     try:
         import xlrd
     except ImportError:
-        subprocess.call(["pip", "install", "xlrd"])
+        subprocess.call(["pip", "install", "xlrd", "--user"])
+    try:
+        import cython
+    except ImportError:
+        subprocess.call(["pip", "install", "cython", "--user"])
     try:
         import vcf
     except ImportError:
-        pip.install(["pip", "install", "pyvcf"])
+        subprocess.call(["pip", "install", "pyvcf", "--user"])
 
 if __name__ == '__main__':
     HOME = os.path.expanduser('~')
