@@ -64,7 +64,3 @@ And an example of `varscan.conf` will be
     1
     --p-value
     0.2
-
-## TODO
-* add support for `--vcf-sample-list`
-* add ability to specify which regions to process
