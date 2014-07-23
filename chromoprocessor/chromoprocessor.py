@@ -82,7 +82,9 @@ def parse_file(file_with_bams):
 
 def make_dirs(sections):
     """
-    Attempts to make the dirs that are needed throughout the course of the
+    Attempts to make the dirs that are needed throughout the course of the. In
+    order to keep the working directory relatively clean this program creates a
+    directory for each region in the bam file and one for the vcf files.
     program: one for vcf files and another for the transient bam files.
     :param sections: a list containing the names of the directories
     """
@@ -114,7 +116,7 @@ def check_headers(bamfiles):
     :param bamfiles: a list of bam files
     :return: a tuple where the first element is True if all the headers are the
     same and False otherwise, and the second element is the header of the first
-    element.
+    bam file.
     """
     # get the first header and use it to compare against
     master = extract_header(bamfiles[0])
@@ -156,7 +158,8 @@ def build_varscan_args():
 
 def create_bam(bamfile, region):
     """
-    Creates the bam file for each region
+    Creates the bam file for each region. File names will have a form similar to
+    'chr1/chr1_sample.bam'.
     :param bamfile: the bamfile to extract the region from
     :param region: the region to extract from the bamfile
     """
@@ -170,7 +173,7 @@ def create_bam(bamfile, region):
 def create_vcf(region):
     """
     Calls 'samtools mpileup' on all the files in a region and pipes the output
-    to VarScan.
+    to VarScan. File names will have a form similar to 'vcf/chr1.vcf'.
     :param region: the region--directory--to process
     """
     # get all the bam files first!
@@ -201,7 +204,7 @@ def create_vcf(region):
 def run(region, bamfiles):
     """
     Super generic name, but this function does the bulk of the work. It creates
-    the BAM files and then creates the vcf files.
+    the BAM files and then creates the VCF files.
     :param region: the region to process
     :param bamfile: a list of BAM files to process
     """
