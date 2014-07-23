@@ -98,12 +98,11 @@ def write_fields(in_file, out):
                                       get("CM"), get("PM"), get("OAS"),
                                       get("EAS")])
 
-    line = ""
     record = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n"
     for row in in_file:
-        line = record.format(get("CHR"), get("CO"), get("DB"), get("REF"),
-                             get("VAR"), ".", ".", ".", FORMAT, create_record())
-        out.write(line)
+        out.write(record.format(get("CHR"), get("CO"), get("DB"), get("REF"),
+                                get("VAR"), ".", ".", ".", FORMAT,
+                                create_record()))
 
 def process_xls(xls):
     """
@@ -124,6 +123,7 @@ def process_xls(xls):
     write_fields(csv_file, out)
 
     os.remove(csv_name)
+    out.close()
 
 if __name__ == '__main__':
     argparse = argparse.ArgumentParser()
