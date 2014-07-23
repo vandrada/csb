@@ -6,7 +6,7 @@ Parses a VCF file and extracts the specified regions.
 
 # Dependencies
 ## Python Modules
-* [PyVCF](https://github.com/jamescasbon/PyVCF)
+* [PyVCF](https://pypi.python.org/pypi/PyVCF)
 * [argparse](https://pypi.python.org/pypi/argparse)
 
     <sub> \* only if using a Python version &lt; 2.7 </sub>
