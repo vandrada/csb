@@ -131,4 +131,4 @@ files pass `--keep-all`. The vcf files are _always_ kept.
 
 * The `varscan.conf` and `samtools.conf` files are simply files where each
 argument and switch to pass to VarScan or samtools are on a single line. To see
-examples of these files look [here](../chromoprocessor/doc/README.html)
+examples of these files look [here](../chromoprocessor/README.md)

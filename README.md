@@ -5,21 +5,19 @@ for the P20 internship.
 
 The following directories/files are included:
 
-* [chromoprocessor/chromoprocessor.py](../chromoprocessor/doc/README.html):
+* [chromoprocessor/chromoprocessor.py](chromoprocessor/README.md):
 processes _multiple_ bam files in parallel.
-* [vcfparse/vcfparse.py](../vcfparse/doc/README.html):
+* [vcfparse/vcfparse.py](vcfparse/README.md):
 extracts the specified regions from a VCF file
-* [tovcf/tovcf.py](../tovcf/doc/README.html):
+* [tovcf/tovcf.py](tovcf/README.md):
 converts an Excel file to a VCF file
 * __graph/__:
 this directory contains R scripts written for specific data, they aren't
 meant to be general.
 * __install.py__:
 installs the Python modules needed for the programs in this repo.
-* [parallel/chromosplit.py](../parallel/doc/README.html): __deprecated__
+* [parallel/chromosplit.py](parallel/README.md): __deprecated__
 <strike>processes a _single_ bam file in parallel.</strike>
-
-<sub> ** links only work with local HTML documentation ** </sub>
 
 ## Clarification
 While `chromoprocessor` and `chromosplit` appear to be very similar, they are in
