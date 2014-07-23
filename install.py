@@ -100,7 +100,7 @@ def main():
     try:
         import vcf
     except ImportError:
-        # PyVcf doens't install correctly on RHEL so we have to do it manually
+        # PyVcf doesn't install correctly on RHEL so we have to do it manually
         # more info here: https://github.com/jamescasbon/PyVCF/issues/69
         install("PyVCF", pyvcf_url)
         pip_install("ordereddict")
