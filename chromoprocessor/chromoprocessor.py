@@ -41,7 +41,8 @@ def s_print(mes, newline=True, pro='*'):
     """
     t_form = "%H:%M:%S"
     lock.acquire()
-    sys.stdout.write(pro + '[' + time.strftime(t_form) + ']' + mes)
+    sys.stdout.write('\033[34m' + pro + '[' + time.strftime(t_form) + ']' +
+        mes + '\033[0m')
     if newline:
         sys.stdout.write("\n")
     lock.release()
@@ -185,7 +186,7 @@ def create_vcf(region):
     varscan_file = open(outfile_name, "w+b")
 
     if args.verbose:
-        s_print("calling: \n\t%s | %s > %s" % (' '.join(samtools_cmd),
+        s_print("calling: \n%s | %s > %s" % (' '.join(samtools_cmd),
         ' '.join(varscan_cmd), varscan_file.name))
 
     mpileup = subprocess.Popen(samtools_cmd, stdout=subprocess.PIPE)
