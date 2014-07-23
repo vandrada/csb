@@ -40,19 +40,16 @@ def parse(vcf_file, field):
     samples = vcf_file.samples
 
     # begin parsing (and printing)
-    out = open(field + ".txt", "w+")
-    out.write(header(samples))
-
-    for record in vcf_file:
-        out.write("{0}\t{1}".format(record.CHROM, record.POS))
-        for sample in record:
-            if sample[field] == None:
-                out.write('\t{0}'.format(NA))
-            else:
-                out.write('\t{0}'.format(str(sample[field])))
-        out.write('\n')
-
-    out.close()
+    with open(field + ".txt", "w+") as out:
+        out.write(header(samples))
+        for record in vcf_file:
+            out.write("{0}\t{1}".format(record.CHROM, record.POS))
+            for sample in record:
+                if sample[field] == None:
+                    out.write('\t{0}'.format(NA))
+                else:
+                    out.write('\t{0}'.format(str(sample[field])))
+            out.write('\n')
 
 if __name__ == '__main__':
     argparse = argparse.ArgumentParser()
@@ -61,6 +58,7 @@ if __name__ == '__main__':
         help="the sections to parse from the vcf file")
     args = argparse.parse_args()
 
+    # feel free to change this
     NA = './.'
 
     for field in [field.upper() for field in args.fields]:
