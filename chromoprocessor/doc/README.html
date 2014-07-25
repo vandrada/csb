@@ -24,12 +24,12 @@
 <p><sub> * only if using a Python version &lt; 3.0 </sub></p></li>
 </ul>
 <h1 id="synopsis">Synopsis</h1>
-<pre><code>chromoprocessor file_names action location [-h] [--n-region] [--verbose | -v]</code></pre>
+<pre><code>chromoprocessor file_names location action [-h] [--n-region] [--verbose | -v]</code></pre>
 <h2 id="arguments">Arguments</h2>
 <ul>
 <li><code>file_names</code>: a file containing the names of the BAM files to process.</li>
-<li><code>action</code>: the action for VarScan to run.</li>
 <li><code>location</code>: the location of the VarScan jar.</li>
+<li><code>action</code>: the action for VarScan to run.</li>
 </ul>
 <h2 id="options">Options</h2>
 <ul>
@@ -39,9 +39,9 @@
 <h1 id="examples">Examples</h1>
 <p>The easiset way to create the file with the name of the BAM files to process is with <code>ls</code> if you're going to call <code>chromoprocessor</code> from the same directory where the BAM files are, or with <code>find</code> otherwise, i.e <code>ls *.bam &gt; to_process.txt</code>. Of course, the name of the file is completely arbitrary and can be anything.</p>
 <p>After the file is produced it's as simple as</p>
-<pre><code>chromoprocessor to_process.txt mpileup2snp /home/You/VarScan.jar -v</code></pre>
+<pre><code>chromoprocessor to_process.txt /home/You/VarScan.jar mpileup2snp -v</code></pre>
 <p>If you have the hardware and you would like the BAM files to be processed quicker, you can run more jobs in parallel</p>
-<pre><code>chromoprocessor to_process.txt mpileup2snp /home/You/VarScan.jar -v --n-region=6</code></pre>
+<pre><code>chromoprocessor to_process.txt /home/You/VarScan.jar mpileup2snp -v --n-region=6</code></pre>
 <h1 id="notes">Notes</h1>
 <p>A <code>varscan.conf</code> and a <code>samtools.conf</code> are expected to be in the current working directory when the program is called. The files should contain the arguments and parameters you want to pass to VarScan and samtools respectively.</p>
 <p>A very minimal example of <code>samtools.conf</code> will be</p>
