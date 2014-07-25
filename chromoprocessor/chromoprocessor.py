@@ -86,7 +86,6 @@ def make_dirs(sections):
     Attempts to make the dirs that are needed throughout the course of the. In
     order to keep the working directory relatively clean this program creates a
     directory for each region in the bam file and one for the vcf files.
-    program: one for vcf files and another for the transient bam files.
     :param sections: a list containing the names of the directories
     """
     try:
