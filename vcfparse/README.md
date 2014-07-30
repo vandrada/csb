@@ -30,11 +30,11 @@ A command such as
 will create four separate text files, one for each field. Each text file has a
 header of the form
 
-    Chromosome  Position    Sample1 [...]   SampleN
+    Chromosome  Position    Value   Sample
 
 which is tab separated and each subsequent line will look something like this
 
-    chr10   181479  27      41
+    chr10   181479  27  Sample4
 
 
 # Thanks
