@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="name">Name</h1>
+<p>vcfrename</p>
+<h1 id="description">Description</h1>
+<p><strong>Dead</strong> simple program to rename the samples of a VCF file.</p>
+<h1 id="dependencies">Dependencies</h1>
+<ul>
+<li><p><a href="https://pypi.python.org/pypi/argparse">argparse</a></p>
+<p><sub> * only if using a Python version &lt; 2.7 </sub></p></li>
+</ul>
+<h1 id="synopsis">Synopsis</h1>
+<pre><code>vcfrename vcf_file names [-h]</code></pre>
+<h2 id="arguments">Arguments</h2>
+<ul>
+<li><code>vcf_file</code>: the VCF file to rename</li>
+<li><code>names</code>: a file with the new names</li>
+</ul>
+<h1 id="examples">Examples</h1>
+<p>To rename the samples of <code>run.vcf</code> with the names contained in <code>names.txt</code> run</p>
+<pre><code>vcfrename vcf_file names</code></pre>
+<p>Each name in <code>names</code> should be on a separate line.</p>
+</body>
+</html>
