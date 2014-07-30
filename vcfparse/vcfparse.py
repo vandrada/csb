@@ -25,8 +25,8 @@ def header(samples):
     Prints a fugly header.
     :param samples: the name of the samples to use in the header
     """
-    s = "{0}\t{1}\t".format("Chromosome", "Position")
-    s += '\t'.join(samples)
+    s = "{0}\t{1}\t{2}\t{3}\n".\
+            format("Chromosome", "Position", "Value", "Sample")
     s += '\n'
 
     return s
@@ -43,13 +43,14 @@ def parse(vcf_file, field):
     with open(field + ".txt", "w+") as out:
         out.write(header(samples))
         for record in vcf_file:
-            out.write("{0}\t{1}".format(record.CHROM, record.POS))
             for sample in record:
                 if sample[field] == None:
-                    out.write('\t{0}'.format(NA))
+                    out.write("{0}\t{1}\t{2}\t{3}\n".\
+                        format(record.CHROM, record.POS, NA, sample.sample))
                 else:
-                    out.write('\t{0}'.format(str(sample[field])))
-            out.write('\n')
+                    out.write("{0}\t{1}\t{2}\t{3}\n".\
+                        format(record.CHROM, record.POS, str(sample[field]),
+                               sample.sample))
 
 if __name__ == '__main__':
     argparse = argparse.ArgumentParser()
