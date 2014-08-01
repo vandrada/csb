@@ -21,20 +21,21 @@ import sys
 
 if __name__ == '__main__':
     argparse = argparse.ArgumentParser()
-    argparse.add_argument('vcf_file', help="the vcf file to rename")
+    argparse.add_argument('vcf_file', help="the VCF file to rename")
     argparse.add_argument('names', help="file with new names")
     args = argparse.parse_args()
 
     standard = ["#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO",
                 "FORMAT"]
-    lines = []
 
+    # get the new names
     with open(args.names, "r") as names:
         for line in names:
             standard.append(line.replace('\n', ''))
 
     new_header = '\t'.join(standard) + '\n'
 
+    # rewrite the VCF file
     with open(args.vcf_file, "r") as vcf_file:
         for line in vcf_file:
             if line.split('\t')[0] != "#CHROM":
