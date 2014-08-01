@@ -52,16 +52,22 @@ def install(lib, url):
     lib_dir = dir_name(url)
     print "installing %s to ~/%s" % (lib, lib_dir)
     urllib.urlretrieve(url, filename=lib + ".tar.gz")
+
     # extract
     lib_tar = tarfile.open(lib + ".tar.gz")
     lib_tar.extractall()
     lib_tar.close()
+
     # install
     os.chdir(lib_dir)
     if lib == "PyVCF":
-        subprocess.call(["cython", "vcf/cparse.pyx"])
+        try:
+            subprocess.call(["cython", "vcf/cparse.pyx"])
+        except:
+            print '\033[93m' + "Please update your path" + '\033[0m'
     subprocess.call(['python', 'setup.py', 'install', '--user'])
     os.chdir(HOME)
+
     # clean up
     shutil.rmtree(lib_dir)
     os.remove(lib_tar.name)
