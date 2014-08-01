@@ -49,8 +49,8 @@ def s_print(mes, newline=True, pro='*'):
 
 def extract_header(samfile):
     """
-    Extracts the regions from the bam file
-    :param samfile: the bam file to extract the headers from
+    Extracts the regions from the BAM file
+    :param samfile: the BAM file to extract the headers from
     """
     sections = [SQ['SN'] for SQ in samfile.header['SQ']]
     return sections
@@ -76,7 +76,7 @@ def parse_file(file_with_bams):
     # sanity check...
     for line in lines:
         if line.strip('\n').split('.')[-1] != 'bam':
-            s_print("%s is not a bam file" % (line.strip('\n')), pro=ERR)
+            s_print("%s is not a BAM file" % (line.strip('\n')), pro=ERR)
             return []
 
     return [line.strip('\n') for line in lines]
@@ -85,7 +85,7 @@ def make_dirs(sections):
     """
     Attempts to make the dirs that are needed throughout the course of the. In
     order to keep the working directory relatively clean this program creates a
-    directory for each region in the bam file and one for the vcf files.
+    directory for each region in the BAM file and one for the VCF files.
     :param sections: a list containing the names of the directories
     """
     try:
@@ -98,9 +98,7 @@ def make_dirs(sections):
 
 def read_conf_file(conf):
     """
-    Reads a .conf file and returns the contents. Since this function returns a
-    list of the files when the program starts, it's impossible to change the
-    parameters during the course of the program.
+    Reads a conf file and returns the contents.
     :param conf: the conf file to read
     :return: a list of the lines in the file
     """
@@ -112,11 +110,11 @@ def read_conf_file(conf):
 
 def check_headers(bamfiles):
     """
-    Ensures that all the bamfiles have the same sections
-    :param bamfiles: a list of bam files
+    Ensures that all the BAM files have the same sections
+    :param bamfiles: a list of BAM files
     :return: a tuple where the first element is True if all the headers are the
     same and False otherwise, and the second element is the header of the first
-    bam file.
+    BAM file.
     """
     # get the first header and use it to compare against
     master = extract_header(bamfiles[0])
@@ -125,10 +123,9 @@ def check_headers(bamfiles):
 def build_samtools_args(bamfiles):
     """
     Parses a file containing the arguments for `samtools mpileup` and returns a
-    list for subprocess.open. Unfortunately, it's very similar to
-    build_varscan_args.
-    :param bamfiles: a list of the bamfiles to add to the command.
-    :return: a list of arguments for the samtools mpileup command.
+    list for subprocess.open.
+    :param bamfiles: a list of the BAM files to add to the command.
+    :return: a list of arguments for the `samtools mpileup` command.
     """
     cmd = ["samtools", "mpileup"]
     cmd.extend(bamfiles)
@@ -158,25 +155,25 @@ def build_varscan_args():
 
 def create_bam(bamfile, region):
     """
-    Creates the bam file for each region. File names will have a form similar to
+    Creates the BAM file for each region. File names will have a form similar to
     'chr1/chr1_sample.bam'.
-    :param bamfile: the bamfile to extract the region from
-    :param region: the region to extract from the bamfile
+    :param bamfile: the BAM file to extract the region from
+    :param region: the region to extract from the BAM file from.
     """
-    outfile_name = os.path.join(region,
-        region + "_" + get_filename(bamfile.filename) + ".bam")
+    outfile_name = os.path.join(region, region + "_" +
+        get_filename(bamfile.filename) + ".bam")
     s_print("creating %s" %(outfile_name))
     outfile = open(outfile_name, "w+b")
-    subprocess.call(
-        ["samtools", "view", "-b", bamfile.filename, region], stdout=outfile)
+    subprocess.call(["samtools", "view", "-b", bamfile.filename, region],
+        stdout=outfile)
 
 def create_vcf(region):
     """
-    Calls 'samtools mpileup' on all the files in a region and pipes the output
+    Calls `samtools mpileup` on all the files in a region and pipes the output
     to VarScan. File names will have a form similar to 'vcf/chr1.vcf'.
-    :param region: the region--directory--to process
+    :param region: the region to process
     """
-    # get all the bam files first!
+    # get all the BAM files first
     bamfiles = [os.path.join(region, bamf) for bamf in os.listdir(region)]
 
     samtools_cmd = build_samtools_args(bamfiles)
@@ -186,12 +183,12 @@ def create_vcf(region):
 
     if args.verbose:
         s_print("calling: \n%s | %s > %s" % (' '.join(samtools_cmd),
-        ' '.join(varscan_cmd), varscan_file.name))
+                ' '.join(varscan_cmd), varscan_file.name))
 
     mpileup = subprocess.Popen(samtools_cmd, stdout=subprocess.PIPE)
     subprocess.call(varscan_cmd, stdin=mpileup.stdout, stdout=varscan_file)
 
-    # remove the bam files
+    # remove the BAM files
     for bamfile in bamfiles:
         os.remove(bamfile)
 
@@ -217,7 +214,7 @@ def run(region, bamfiles):
 def create_threads(bamfiles):
     """
     Creates the threads to handle the individual regions.
-    :param bamfiles: a list of bamfiles to process
+    :param bamfiles: a list of BAM files to process
     """
     with ThreadPoolExecutor(max_workers=args.n_region) as executor:
         for region in HEADER:
@@ -238,8 +235,7 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
-    # default value for s_print
-    ERR = '!'
+    ERR = '!'   # default value for s_print
     SAMTOOLS_CONF = read_conf_file("samtools.conf")
     VARSCAN_CONF = read_conf_file("varscan.conf")
     lock = multiprocessing.Lock()
@@ -255,7 +251,7 @@ if __name__ == "__main__":
     if args.verbose:
         s_print("found the following files: %s" % (', '.join(to_process)))
 
-    # create the sam files
+    # create the BAM files
     bamfiles = [pysam.Samfile(bam, "rb") for bam in to_process]
 
     # make sure all the files have the same header and regions
