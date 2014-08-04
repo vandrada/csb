@@ -11,24 +11,26 @@
 <h1 id="summer-2014-source-code">Summer 2014 Source Code</h1>
 <h2 id="contents">Contents</h2>
 <p>This is the git repo that contains all code written during the summer of 2014 for the P20 internship.</p>
-<p>The following directories/files are included:</p>
+<h3 id="creating-vcf-files">Creating VCF Files</h3>
 <ul>
-<li><a href="../chromoprocessor/doc/README.html">chromoprocessor/chromoprocessor.py</a>: processes <em>multiple</em> bam files in parallel</li>
-<li><a href="../vcfparse/doc/README.html">vcfparse/vcfparse.py</a>: extracts the specified regions from a VCF file</li>
+<li><a href="../chromoprocessor/doc/README.html">chromoprocessor/chromoprocessor.py</a>: processes multiple bam files in parallel</li>
 <li><a href="../tovcf/doc/README.html">tovcf/tovcf.py</a>: converts an Excel file to a VCF file</li>
-<li><a href="../vcfrename/doc/README.html">vcfrename/vcfrename.py</a>: renames the sample columns in a VCF file</li>
-<li><strong>graph/</strong>: this directory contains R scripts written for specific data, they aren't meant to be general</li>
-<li><strong>install.py</strong>: installs the Python modules needed for the programs in this repo</li>
-<li><a href="../parallel/doc/README.html">parallel/chromosplit.py</a>: <strong>deprecated</strong> <strike>processes a <em>single</em> bam file in parallel</strike></li>
-<p><strong> Please note that these links only work when the documentation is local. </strong></p>
+<li><strike><a href="../parallel/doc/README.html">parallel/chromosplit.py</a>: processes a <em>single</em> bam file in parallel</strike></li>
 </ul>
-<h2 id="clarification">Clarification</h2>
-<p>While <code>chromoprocessor</code> and <code>chromosplit</code> appear to be very similar, they are in fact very different from each other.</p>
-<p><code>chromoprocessor</code> is the <em>correct</em> program for processing multiple BAM files in parallel. Effectively, it parallelizes a command similar to</p>
-<pre><code>samtools mpileup file1.bam file2.bam [...] | java -jar Varscan mpileup2snp</code></pre>
-<p><code>chromosplit</code> processes a <em>single</em> BAM file by splitting it into regions and processing each region on it's own. <code>chromosplit</code> parallelizes a command similar to</p>
-<pre><code>samtools mpileup file.bam | java -jar Varscan mpileup2snp</code></pre>
-<p>However, <code>chromoprocessor</code> is just as capable of processing a single BAM file, because of this <code>chromosplit</code> is deprecated. With a single BAM file to process the pipeline that <code>chromoprocessor</code> implements is equivalent to the one that <code>chromosplit</code> implemented.</p>
+<h3 id="processing-vcf-files">Processing VCF Files</h3>
+<ul>
+<li><a href="../vcfparse/doc/README.html">vcfparse/vcfparse.py</a>: extracts the specified regions from a VCF file</li>
+<li><a href="../vcfrename/doc/README.html">vcfrename/vcfrename.py</a>: renames the sample columns in a VCF file</li>
+</ul>
+<h3 id="graphing">Graphing</h3>
+<ul>
+<li><strong>graph/</strong>: this directory contains R scripts written for specific data, they aren't meant to be general</li>
+</ul>
+<h3 id="et-cetera">Et Cetera</h3>
+<ul>
+<li><strong>install.py</strong>: installs the Python modules needed for the programs in this repo</li>
+</ul>
+<p><strong>Please note that these links only work when the documentation is local.</strong></p>
 <h2 id="installation">Installation</h2>
 <p>Most of the Python programs depend on external libraries and modules. Each dependency is listed in the <code>README</code> for that particular program. However, if you plan on using all the programs at some point in time, you can run <code>install.py</code> and it will install <em>all</em> the Python modules that <code>chromoprocessor</code>, <code>vcfparse</code>, and <code>tovcf</code> need for the user.</p>
 <p>Note: <code>install.py</code> also installs <a href="https://pypi.python.org/pypi/pip">pip</a></p>
