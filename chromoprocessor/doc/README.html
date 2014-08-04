@@ -37,7 +37,7 @@
 <li><code>--verbose</code>: output additional information.</li>
 </ul>
 <h1 id="examples">Examples</h1>
-<p>The easiset way to create the file with the name of the BAM files to process is with <code>ls</code> if you're going to call <code>chromoprocessor</code> from the same directory where the BAM files are, or with <code>find</code> otherwise, i.e <code>ls *.bam &gt; to_process.txt</code>. Of course, the name of the file is completely arbitrary and can be anything.</p>
+<p>The easiest way to create the file with the name of the BAM files to process is with <code>ls</code>, i.e <code>ls *.bam &gt; to_process.txt</code>. Of course, the name of the file is completely arbitrary and can be anything.</p>
 <p>After the file is produced it's as simple as</p>
 <pre><code>chromoprocessor to_process.txt /home/You/VarScan.jar mpileup2snp -v</code></pre>
 <p>If you have the hardware and you would like the BAM files to be processed quicker, you can run more jobs in parallel</p>
