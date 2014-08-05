@@ -26,7 +26,6 @@ meant to be general
 * __install.py__:
 installs the Python modules needed for the programs in this repo
 
-__Please note that these links only work when the documentation is local.__
 
 ## Installation
 Most of the Python programs depend on external libraries and modules. Each
