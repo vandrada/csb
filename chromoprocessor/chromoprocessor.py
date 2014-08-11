@@ -61,7 +61,7 @@ def get_filename(samfile):
     :param samfile: the name of the file to extract
     :return: the name of the file
     """
-    return samfile.split('.')[0]
+    return samfile.split('/')[-1].split('.')[0]
 
 def parse_file(file_with_bams):
     """
@@ -106,7 +106,8 @@ def read_conf_file(conf):
         with open(conf, "r") as f:
             return f.readlines()
     except IOError:
-        s_print("%s not found" % (conf), pro=ERR)
+        s_print("%s not found; using default arguments" % (conf))
+        return []
 
 def check_headers(bamfiles):
     """
