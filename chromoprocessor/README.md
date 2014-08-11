@@ -7,7 +7,9 @@ Parallelizes a command similar to
 
     samtools mpileup 1.bam 2.bam [...] n.bam | java -jar VarScan > out.vcf
 
-The resulting VCF files--one for each region--will be in `vcf/`.
+The resulting VCF files--one for each region--will be in `vcf/`. In order to
+pass arguments to `samtools` and `VarScan` use a `samtools.conf` and
+`varscan.conf` file. For more information see Notes below.
 
 # Dependencies
 ## Python Modules
@@ -48,9 +50,10 @@ quicker, you can run more jobs in parallel
     chromoprocessor to_process.txt /home/You/VarScan.jar mpileup2snp -v --n-region=6
 
 # Notes
-A `varscan.conf` and a `samtools.conf` are expected to be in the current
-working directory when the program is called. The files should contain the
-arguments and parameters you want to pass to VarScan and samtools respectively.
+A `varscan.conf` and a `samtools.conf` are expected to be in the current working
+directory when the program is called, if they don't exist the default parameters
+for VarScan and samtools will be used. The files should contain parameters you
+want to pass to VarScan and samtools respectively.
 
 A very minimal example of `samtools.conf` will be
 
