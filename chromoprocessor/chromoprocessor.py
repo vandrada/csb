@@ -235,10 +235,10 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
+    lock = multiprocessing.Lock()
     ERR = '!'   # default value for s_print
     SAMTOOLS_CONF = read_conf_file("samtools.conf")
     VARSCAN_CONF = read_conf_file("varscan.conf")
-    lock = multiprocessing.Lock()
     vcf_dir_name = "vcf"
 
     bamfiles = []
