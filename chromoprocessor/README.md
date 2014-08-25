@@ -23,14 +23,18 @@ pass arguments to `samtools` and `VarScan` use a `samtools.conf` and
 
 # Synopsis
 
-    chromoprocessor file_names location action [-h] [--n-region] [--verbose | -v]
+    chromoprocessor location action [--file file_name] [--dir dir]
+                                    [--list bam [bam ..]] [--n-region]
+                                    [--verbose | -v] [-h]
 
 ## Arguments
-* `file_names`: a file containing the names of the BAM files to process.
 * `location`: the location of the VarScan jar.
 * `action`: the action for VarScan to run.
 
 ## Options
+* `--file`: a file containing the paths to the BAM files to process.
+* `--dir`: the path to the directory with the BAM files to process.
+* `--list`: a list of the BAM files to process.
 * `--n-region`: the number of regions to process in parallel. The default is
 two.
 * `--verbose`: output additional information.
@@ -40,14 +44,22 @@ The easiest way to create the file with the name of the BAM files to process is
 with `ls`, i.e `ls *.bam > to_process.txt`. Of course, the name of the file is
 completely arbitrary and can be anything.
 
-After the file is produced it's as simple as
+After the file is produced, use the `--file` switch
 
-    chromoprocessor to_process.txt /home/You/VarScan.jar mpileup2snp -v
+    chromoprocessor --file to_process.txt /home/You/VarScan.jar mpileup2snp -v
+
+If you want to specify the directory with the BAM files, use the `--dir` switch
+
+    chromoprocessor --dir /path/to/bams/ /home/You/VarScan.jar mpileup2snp -v
+
+Finally, you can also specify a list of BAM files
+
+    chromroprocessor --list /path/to/bam1 /path/to/bam2 /home/You/VarScan.jar mpileup2snp
 
 If you have the hardware and you would like the BAM files to be processed
 quicker, you can run more jobs in parallel
 
-    chromoprocessor to_process.txt /home/You/VarScan.jar mpileup2snp -v --n-region=6
+    chromoprocessor --dir path/to/bams/ /home/You/VarScan.jar mpileup2snp -v --n-region 6
 
 # Notes
 A `varscan.conf` and a `samtools.conf` are expected to be in the current working

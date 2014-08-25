@@ -63,6 +63,38 @@ def get_filename(samfile):
     """
     return samfile.split('/')[-1].split('.')[0]
 
+def check_input(args):
+    """
+    Ensures that input is entered and only one input source is specified.
+    :param args: the arguments from argparse
+    """
+    # no input specified
+    if args.file_name == None and args.dir == None and args.bam == []:
+        s_print("no input provided", pro=ERR)
+        sys.exit()
+    # multiple input
+    elif args.file_name != None and args.dir != None:
+        s_print("input can only come from one source", pro=ERR)
+        sys.exit()
+    elif args.file_name != None and args.bam != []:
+        s_print("input can only come from one source", pro=ERR)
+        sys.exit()
+    elif args.dir != None and args.bam != []:
+        s_print("input can only come from one source", pro=ERR)
+        sys.exit()
+
+def parse_input(args):
+    """
+    Parses the correct input source and returns the contents
+    :param args: the arguments from argparse
+    """
+    if args.file_name:
+        return parse_file(args.file_name)
+    elif args.dir:
+        return parse_dir(args.dir)
+    else:
+        return args.bam
+
 def parse_file(file_with_bams):
     """
     Returns a list of the files that need to be processed.
@@ -77,15 +109,26 @@ def parse_file(file_with_bams):
     for line in lines:
         if line.strip('\n').split('.')[-1] != 'bam':
             s_print("%s is not a BAM file" % (line.strip('\n')), pro=ERR)
-            return []
+            lines.remove(line)
 
     return [line.strip('\n') for line in lines]
 
+def parse_dir(dir_with_bams):
+    """
+    Returns a list of BAM files from a directory
+    :param dir_with_bams: the directory to gather the BAM files from
+    :return: a list of BAM files
+    """
+    return [os.path.join(dir_with_bams, bam)\
+            for bam in os.listdir(dir_with_bams)\
+            if bam.split('.')[-1] == 'bam']
+
 def make_dirs(sections):
     """
-    Attempts to make the dirs that are needed throughout the course of the. In
-    order to keep the working directory relatively clean this program creates a
-    directory for each region in the BAM file and one for the VCF files.
+    Attempts to make the dirs that are needed throughout the course of the
+    program. In order to keep the working directory relatively clean this
+    program creates a directory for each region in the BAM files and one for the
+    VCF files.
     :param sections: a list containing the names of the directories
     """
     try:
@@ -106,6 +149,7 @@ def read_conf_file(conf):
         with open(conf, "r") as f:
             return f.readlines()
     except IOError:
+        # no conf file found
         s_print("%s not found; using default arguments" % (conf))
         return []
 
@@ -222,10 +266,20 @@ def create_threads(bamfiles):
             executor.submit(run, region, bamfiles)
 
 if __name__ == "__main__":
+    ERR = '!'   # default value for s_print
+    lock = multiprocessing.Lock()
+    vcf_dir_name = "vcf"
+
     parser = ArgumentParser()
     # arguments
-    parser.add_argument("file_names",
+    # specifying the file(s)
+    parser.add_argument("--file", dest="file_name", default=None,
         help="a file containing the names of the files to process")
+    parser.add_argument("--dir", dest="dir", default=None,
+        help="the directory containing the BAM files")
+    parser.add_argument("--list", dest="bam", nargs='+', default=[],
+        help="a list of the BAM files")
+    # other
     parser.add_argument("location",
         help="the location of the VarScan jar file")
     parser.add_argument("action",
@@ -236,18 +290,16 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
-    lock = multiprocessing.Lock()
-    ERR = '!'   # default value for s_print
+    check_input(args)
+
     SAMTOOLS_CONF = read_conf_file("samtools.conf")
     VARSCAN_CONF = read_conf_file("varscan.conf")
-    vcf_dir_name = "vcf"
-
     bamfiles = []
-    to_process = parse_file(args.file_names)
+    to_process = parse_input(args)
 
     # check if the files are valid
     if to_process == []:
-        s_print("exiting", pro=ERR)
+        s_print("no files found; exiting", pro=ERR)
         sys.exit()
     if args.verbose:
         s_print("found the following files: %s" % (', '.join(to_process)))
