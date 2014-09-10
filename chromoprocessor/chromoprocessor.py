@@ -30,7 +30,8 @@ try:
     from concurrent.futures import ThreadPoolExecutor
     from argparse import ArgumentParser
 except ImportError:
-    s_print("please install the needed Python modules")
+    print "please install the needed Python modules"
+
 
 def s_print(mes, newline=True, pro='*'):
     """
@@ -42,10 +43,11 @@ def s_print(mes, newline=True, pro='*'):
     t_form = "%H:%M:%S"
     lock.acquire()
     sys.stdout.write('\033[34m' + pro + '[' + time.strftime(t_form) + ']' +
-        mes + '\033[0m')
+                     mes + '\033[0m')
     if newline:
         sys.stdout.write("\n")
     lock.release()
+
 
 def extract_header(samfile):
     """
@@ -55,6 +57,7 @@ def extract_header(samfile):
     sections = [SQ['SN'] for SQ in samfile.header['SQ']]
     return sections
 
+
 def get_filename(samfile):
     """
     Extracts the name of the file
@@ -63,25 +66,27 @@ def get_filename(samfile):
     """
     return samfile.split('/')[-1].split('.')[0]
 
+
 def check_input(args):
     """
     Ensures that input is entered and only one input source is specified.
     :param args: the arguments from argparse
     """
     # no input specified
-    if args.file_name == None and args.dir == None and args.bam == []:
+    if args.file_name is None and args.dir is None and args.bam == []:
         s_print("no input provided", pro=ERR)
         sys.exit()
     # multiple input
-    elif args.file_name != None and args.dir != None:
+    elif args.file_name is not None and args.dir is not None:
         s_print("input can only come from one source", pro=ERR)
         sys.exit()
-    elif args.file_name != None and args.bam != []:
+    elif args.file_name is not None and args.bam != []:
         s_print("input can only come from one source", pro=ERR)
         sys.exit()
-    elif args.dir != None and args.bam != []:
+    elif args.dir is not None and args.bam != []:
         s_print("input can only come from one source", pro=ERR)
         sys.exit()
+
 
 def parse_input(args):
     """
@@ -94,6 +99,7 @@ def parse_input(args):
         return parse_dir(args.dir)
     else:
         return args.bam
+
 
 def parse_file(file_with_bams):
     """
@@ -113,22 +119,24 @@ def parse_file(file_with_bams):
 
     return [line.strip('\n') for line in lines]
 
+
 def parse_dir(dir_with_bams):
     """
     Returns a list of BAM files from a directory
     :param dir_with_bams: the directory to gather the BAM files from
     :return: a list of BAM files
     """
-    return [os.path.join(dir_with_bams, bam)\
-            for bam in os.listdir(dir_with_bams)\
+    return [os.path.join(dir_with_bams, bam)
+            for bam in os.listdir(dir_with_bams)
             if bam.split('.')[-1] == 'bam']
+
 
 def make_dirs(sections):
     """
     Attempts to make the dirs that are needed throughout the course of the
     program. In order to keep the working directory relatively clean this
-    program creates a directory for each region in the BAM files and one for the
-    VCF files.
+    program creates a directory for each region in the BAM files and one for
+    the VCF files.
     :param sections: a list containing the names of the directories
     """
     try:
@@ -138,6 +146,7 @@ def make_dirs(sections):
     except OSError:
         s_print("please remove the directories", pro=ERR)
         sys.exit()
+
 
 def read_conf_file(conf):
     """
@@ -153,6 +162,7 @@ def read_conf_file(conf):
         s_print("%s not found; using default arguments" % (conf))
         return []
 
+
 def check_headers(bamfiles):
     """
     Ensures that all the BAM files have the same sections
@@ -164,6 +174,7 @@ def check_headers(bamfiles):
     # get the first header and use it to compare against
     master = extract_header(bamfiles[0])
     return (all([extract_header(bam) == master for bam in bamfiles]), master)
+
 
 def build_samtools_args(bamfiles):
     """
@@ -183,6 +194,7 @@ def build_samtools_args(bamfiles):
 
     return cmd
 
+
 def build_varscan_args():
     """
     Parses a file containing the arguments for VarScan and returns a list for
@@ -198,19 +210,21 @@ def build_varscan_args():
 
     return cmd
 
+
 def create_bam(bamfile, region):
     """
-    Creates the BAM file for each region. File names will have a form similar to
-    'chr1/chr1_sample.bam'.
+    Creates the BAM file for each region. File names will have a form similar
+    to 'chr1/chr1_sample.bam'.
     :param bamfile: the BAM file to extract the region from
     :param region: the region to extract from the BAM file from.
     """
     outfile_name = os.path.join(region, region + "_" +
-        get_filename(bamfile.filename) + ".bam")
-    s_print("creating %s" %(outfile_name))
+                                get_filename(bamfile.filename) + ".bam")
+    s_print("creating %s" % (outfile_name))
     outfile = open(outfile_name, "w+b")
     subprocess.call(["samtools", "view", "-b", bamfile.filename, region],
-        stdout=outfile)
+                    stdout=outfile)
+
 
 def create_vcf(region):
     """
@@ -243,6 +257,7 @@ def create_vcf(region):
     except OSError:
         s_print("%s not empty" % (region), pro=ERR)
 
+
 def run(region, bamfiles):
     """
     Super generic name, but this function does the bulk of the work. It creates
@@ -255,6 +270,7 @@ def run(region, bamfiles):
     for bamfile in bamfiles:
         create_bam(bamfile, region)
     create_vcf(region)
+
 
 def create_threads(bamfiles):
     """
@@ -273,19 +289,22 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     # arguments
     # specifying the file(s)
-    parser.add_argument("--file", dest="file_name", default=None,
+    parser.add_argument(
+        "--file", dest="file_name", default=None,
         help="a file containing the names of the files to process")
-    parser.add_argument("--dir", dest="dir", default=None,
+    parser.add_argument(
+        "--dir", dest="dir", default=None,
         help="the directory containing the BAM files")
     parser.add_argument("--list", dest="bam", nargs='+', default=[],
-        help="a list of the BAM files")
+                        help="a list of the BAM files")
     # other
     parser.add_argument("location",
-        help="the location of the VarScan jar file")
+                        help="the location of the VarScan jar file")
     parser.add_argument("action",
-        help="the action for VarScan to run")
+                        help="the action for VarScan to run")
     # options
-    parser.add_argument("--n-region", type=int, dest="n_region", default=2,
+    parser.add_argument(
+        "--n-region", type=int, dest="n_region", default=2,
         help="the number of regions to process in parallel")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
