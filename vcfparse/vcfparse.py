@@ -17,19 +17,18 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import vcf
-import sys
 import argparse
 
-def header(samples):
+def header():
     """
     Prints a fugly header.
     :param samples: the name of the samples to use in the header
     """
-    s = "{0}\t{1}\t{2}\t{3}\n".\
-            format("Chromosome", "Position", "Value", "Sample")
-    s += '\n'
+    head = "{0}\t{1}\t{2}\t{3}\n".\
+        format("Chromosome", "Position", "Value", "Sample")
+    head += '\n'
 
-    return s
+    return head
 
 def parse(vcf_file, field):
     """
@@ -37,20 +36,20 @@ def parse(vcf_file, field):
     :param vcf_file: the vcf file to parse
     :param fields: the fields to parse and print from the vcf file.
     """
-    samples = vcf_file.samples
 
     # begin parsing (and printing)
     with open(field + ".txt", "w+") as out:
-        out.write(header(samples))
+        out.write(header())
         for record in vcf_file:
             for sample in record:
-                if sample[field] == None:
-                    out.write("{0}\t{1}\t{2}\t{3}\n".\
-                        format(record.CHROM, record.POS, NA, sample.sample))
+                if sample[field] is None:
+                    out.write("{0}\t{1}\t{2}\t{3}\n".
+                              format(record.CHROM, record.POS, NA,
+                                     sample.sample))
                 else:
-                    out.write("{0}\t{1}\t{2}\t{3}\n".\
-                        format(record.CHROM, record.POS, str(sample[field]),
-                               sample.sample))
+                    out.write("{0}\t{1}\t{2}\t{3}\n".
+                              format(record.CHROM, record.POS,
+                                     str(sample[field]), sample.sample))
 
 if __name__ == '__main__':
     argparse = argparse.ArgumentParser()
