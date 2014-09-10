@@ -33,7 +33,8 @@ pass arguments to `samtools` and `VarScan` use a `samtools.conf` and
 
 ## Options
 * `--file`: a file containing the paths to the BAM files to process.
-* `--dir`: the path to the directory with the BAM files to process.
+* `--dir`: the path to the directory with the BAM files to process. Searches
+    sub-directories as well.
 * `--list`: a list of the BAM files to process.
 * `--n-region`: the number of regions to process in parallel. The default is
 two.

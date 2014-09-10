@@ -126,9 +126,10 @@ def parse_dir(dir_with_bams):
     :param dir_with_bams: the directory to gather the BAM files from
     :return: a list of BAM files
     """
-    return [os.path.join(dir_with_bams, bam)
-            for bam in os.listdir(dir_with_bams)
-            if bam.split('.')[-1] == 'bam']
+    return [os.path.join(root, bam_file)
+            for root, direc, files in os.walk(dir_with_bams)
+            for bam_file in files
+            if bam_file.split('.')[-1] == 'bam']
 
 
 def make_dirs(sections):
