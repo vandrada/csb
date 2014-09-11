@@ -37,7 +37,7 @@ pass arguments to `samtools` and `VarScan` use a `samtools.conf` and
     sub-directories as well.
 * `--list`: a list of the BAM files to process.
 * `--n-region`: the number of regions to process in parallel. The default is
-two.
+    two.
 * `--verbose`: output additional information.
 
 # Examples
@@ -47,22 +47,26 @@ completely arbitrary and can be anything.
 
 After the file is produced, use the `--file` switch
 
-    chromoprocessor --file to_process.txt /home/You/VarScan.jar mpileup2snp -v
+    chromoprocessor /home/You/VarScan.jar mpileup2snp -v --file to_process.txt
 
 If you want to specify the directory with the BAM files, use the `--dir` switch
 
-    chromoprocessor --dir /path/to/bams/ /home/You/VarScan.jar mpileup2snp -v
+    chromoprocessor /home/You/VarScan.jar mpileup2snp -v --dir /path/to/bams/
 
 Finally, you can also specify a list of BAM files
 
-    chromroprocessor --list /path/to/bam1 /path/to/bam2 /home/You/VarScan.jar mpileup2snp
+    chromroprocessor /home/You/VarScan.jar mpileup2snp --list /path/to/bam1 /path/to/bam2
 
 If you have the hardware and you would like the BAM files to be processed
 quicker, you can run more jobs in parallel
 
-    chromoprocessor --dir path/to/bams/ /home/You/VarScan.jar mpileup2snp -v --n-region 6
+    chromoprocessor /home/You/VarScan.jar mpileup2snp -v --n-region 6 --dir path/to/bams/
 
 # Notes
+In order for samtools to randomly access the BAM files, the BAM files need to
+indexed. Fortunately, samtools makes this easy. Simple run `samtools index` on
+your BAM files.
+
 A `varscan.conf` and a `samtools.conf` are expected to be in the current working
 directory when the program is called, if they don't exist the default parameters
 for VarScan and samtools will be used. The files should contain parameters you
