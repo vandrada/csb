@@ -64,7 +64,7 @@ quicker, you can run more jobs in parallel
 
 # Notes
 In order for samtools to randomly access the BAM files, the BAM files need to
-indexed. Fortunately, samtools makes this easy. Simple run `samtools index` on
+indexed. Fortunately, samtools makes this easy. Simply run `samtools index` on
 your BAM files.
 
 A `varscan.conf` and a `samtools.conf` are expected to be in the current working
