@@ -21,10 +21,14 @@ pass arguments to `samtools` and `VarScan` use a `samtools.conf` and
 
     <sub> \* only if using a Python version &lt; 3.0 </sub>
 
+## External Programs
+* [vcftools](http://vcftools.sourceforge.net)
+
 # Synopsis
 
     chromoprocessor location action [--file file_name] [--dir dir]
                                     [--list bam [bam ..]] [--n-region]
+                                    [--out out]
                                     [--verbose | -v] [-h]
 
 ## Arguments
@@ -36,6 +40,7 @@ pass arguments to `samtools` and `VarScan` use a `samtools.conf` and
 * `--dir`: the path to the directory with the BAM files to process. Searches
     sub-directories as well.
 * `--list`: a list of the BAM files to process.
+* `--out`: the file to write the output to. The default is `run.vcf`.
 * `--n-region`: the number of regions to process in parallel. The default is
     two.
 * `--verbose`: output additional information.
@@ -62,6 +67,11 @@ quicker, you can run more jobs in parallel
 
     chromoprocessor /home/You/VarScan.jar mpileup2snp -v --n-region 6 --dir path/to/bams/
 
+If you don't want the VCF file to have the generic name of `run.vcf`, you can
+specify it's name with the `--out` option:
+
+    chromoprocessor /home/You/VarScan.jar mpileup2snp -v --dir= /path/to/bams --out whateveryouwant.vcf
+
 # Notes
 In order for samtools to randomly access the BAM files, the BAM files need to
 indexed. Fortunately, samtools makes this easy. Simply run `samtools index` on
@@ -79,7 +89,5 @@ A very minimal example of `samtools.conf` will be
 
 And an example of `varscan.conf` will be
 
-    --output-vcf
-    1
     --p-value
     0.2
