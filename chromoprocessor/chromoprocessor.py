@@ -188,10 +188,11 @@ def build_samtools_args(bamfiles):
     cmd.extend(bamfiles)
     cmd.extend(["-o", "-"])
 
-    lock.acquire()
-    for line in SAMTOOLS_CONF:
-        cmd.append(line.strip('\n'))
-    lock.release()
+    if SAMTOOLS_CONF != []:
+        lock.acquire()
+        for line in SAMTOOLS_CONF:
+            cmd.append(line.strip('\n'))
+        lock.release()
 
     return cmd
 
@@ -202,12 +203,14 @@ def build_varscan_args():
     subprocess.open
     :return: a list of arguments for the VarScan subprocess
     """
-    cmd = ["java", "-jar", args.location, args.action]
+    # No filenames are needed because it's piped
+    cmd = ["java", "-jar", args.location, args.action, "--output-vcf", "1"]
 
-    lock.acquire()
-    for line in VARSCAN_CONF:
-        cmd.append(line.strip('\n'))
-    lock.release()
+    if VARSCAN_CONF != []:
+        lock.acquire()
+        for line in VARSCAN_CONF:
+            cmd.append(line.strip('\n'))
+        lock.release()
 
     return cmd
 
@@ -259,6 +262,29 @@ def create_vcf(region):
         s_print("%s not empty" % (region), pro=ERR)
 
 
+def concat_vcfs(vcf_dir):
+    """
+    Concatenates all the VCF files in a directory
+    :param vcf_dir: the directory with the VCF files
+    """
+    arglist = ["vcf-concat"]
+    for vcf in os.listdir(vcf_dir):
+        arglist.append(os.path.join(vcf_dir, vcf))
+    if args.verbose:
+        s_print("running vcf-concat on the files in %s" % vcf_dir)
+
+    with open(args.out, "w+") as vcf_file:
+        subprocess.call(arglist, stdout=vcf_file)
+
+    # clean up
+    for vcf in os.listdir(vcf_dir):
+        os.remove(os.path.join(vcf_dir, vcf))
+    try:
+        os.rmdir(vcf_dir)
+    except OSError:
+        s_print("%s not empty" % vcf_dir, pro=ERR)
+
+
 def run(region, bamfiles):
     """
     Super generic name, but this function does the bulk of the work. It creates
@@ -304,6 +330,8 @@ if __name__ == "__main__":
     parser.add_argument("action",
                         help="the action for VarScan to run")
     # options
+    parser.add_argument("--out", dest="out", default="run.vcf",
+                        help="the name of the output VCF file")
     parser.add_argument(
         "--n-region", type=int, dest="n_region", default=2,
         help="the number of regions to process in parallel")
@@ -337,5 +365,13 @@ if __name__ == "__main__":
         s_print("VarScan location (%s) not valid" % (args.location), pro=ERR)
         sys.exit()
 
+    # check for PERL5LIB in path
+    try:
+        os.environ['PERL5LIB']
+    except KeyError:
+        s_print("Please set your PERL5LIB environment variable", pro=ERR)
+        sys.exit()
+
     make_dirs(HEADER)
     create_threads(bamfiles)
+    concat_vcfs(vcf_dir_name)
