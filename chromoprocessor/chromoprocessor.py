@@ -212,6 +212,19 @@ def check_headers(bamfiles):
     return (all([extract_header(bam) == master for bam in bamfiles]), master)
 
 
+def append_arguments(cmd, conf):
+    """
+    Append options from conf to a command to be called with subprocess
+    :param cmd: the command list
+    :param conf: the conf file holding the options
+    """
+    if conf:
+        lock.acquire()
+        for line in conf:
+            cmd.extend(line.strip('\n').split(' '))
+        lock.release()
+
+
 def build_samtools_args(bamfiles):
     """
     Parses a file containing the arguments for `samtools mpileup` and returns a
@@ -223,11 +236,7 @@ def build_samtools_args(bamfiles):
     cmd.extend(bamfiles)
     cmd.extend(["-o", "-"])
 
-    if SAMTOOLS_CONF != []:
-        lock.acquire()
-        for line in SAMTOOLS_CONF:
-            cmd.append(line.strip('\n'))
-        lock.release()
+    append_arguments(cmd, SAMTOOLS_CONF)
 
     return cmd
 
@@ -241,11 +250,7 @@ def build_varscan_args():
     # No filenames are needed because it's piped
     cmd = ["java", "-jar", args.location, args.action, "--output-vcf", "1"]
 
-    if VARSCAN_CONF != []:
-        lock.acquire()
-        for line in VARSCAN_CONF:
-            cmd.append(line.strip('\n'))
-        lock.release()
+    append_arguments(cmd, VARSCAN_CONF)
 
     return cmd
 
