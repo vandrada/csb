@@ -88,6 +88,41 @@ def check_input(args):
         sys.exit()
 
 
+def check_command(prog):
+    """
+    Checks if prog exists in path using `which`. NOT PORTABLE
+    :param prog: the command to check for
+    """
+    try:
+        with open(os.devnull) as out:
+            subprocess.check_call(['which', prog], stdout=out)
+    except subprocess.CalledProcessError:
+        s_print("%s not found in path" % prog, pro=ERR)
+        sys.exit()
+
+
+def check_external_commands():
+    """
+    Ensures that all programs that are needed are in the path or, in the case
+    of VarScan, that the passed in location is valid.
+    """
+    # check for PERL5LIB in path
+    try:
+        os.environ['PERL5LIB']
+    except KeyError:
+        s_print("Please set your PERL5LIB environment variable", pro=ERR)
+        sys.exit()
+
+    # check for samtools and vcf-concat
+    check_command('samtools')
+    check_command('vcf-concat')
+
+    # make sure the VarScan location is valid
+    if not os.path.exists(args.location):
+        s_print("VarScan location (%s) not valid" % (args.location), pro=ERR)
+        sys.exit()
+
+
 def parse_input(args):
     """
     Parses the correct input source and returns the contents
@@ -322,23 +357,29 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dir", dest="dir", default=None,
         help="the directory containing the BAM files")
-    parser.add_argument("--list", dest="bam", nargs='+', default=[],
-                        help="a list of the BAM files")
+    parser.add_argument(
+        "--list", dest="bam", nargs='+', default=[],
+        help="a list of the BAM files")
     # other
-    parser.add_argument("location",
-                        help="the location of the VarScan jar file")
-    parser.add_argument("action",
-                        help="the action for VarScan to run")
+    parser.add_argument(
+        "location",
+        help="the location of the VarScan jar file")
+    parser.add_argument(
+        "action",
+        help="the action for VarScan to run")
     # options
-    parser.add_argument("--out", dest="out", default="run.vcf",
-                        help="the name of the output VCF file")
+    parser.add_argument(
+        "--out", dest="out", default="run.vcf",
+        help="the name of the output VCF file")
     parser.add_argument(
         "--n-region", type=int, dest="n_region", default=2,
         help="the number of regions to process in parallel")
-    parser.add_argument("--verbose", "-v", action="store_true")
+    parser.add_argument(
+        "--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
     check_input(args)
+    check_external_commands()
 
     SAMTOOLS_CONF = read_conf_file("samtools.conf")
     VARSCAN_CONF = read_conf_file("varscan.conf")
@@ -359,17 +400,6 @@ if __name__ == "__main__":
     (valid, HEADER) = check_headers(bamfiles)
     if not valid:
         s_print("headers are not the same", pro=ERR)
-        sys.exit()
-    # make sure the VarScan location is valid
-    if not os.path.exists(args.location):
-        s_print("VarScan location (%s) not valid" % (args.location), pro=ERR)
-        sys.exit()
-
-    # check for PERL5LIB in path
-    try:
-        os.environ['PERL5LIB']
-    except KeyError:
-        s_print("Please set your PERL5LIB environment variable", pro=ERR)
         sys.exit()
 
     make_dirs(HEADER)
