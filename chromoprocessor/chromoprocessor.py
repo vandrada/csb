@@ -20,6 +20,7 @@
 Processes multiple BAM files in parallel by splitting them into regions.
 """
 
+import re
 import os
 import sys
 import time
@@ -65,6 +66,17 @@ def get_filename(samfile):
     :return: the name of the file
     """
     return samfile.split('/')[-1].split('.')[0]
+
+
+def natural_sort(l):
+    """
+    Sorts a list naturally--the way that a human will sort it--in place.
+    From http://blog.codinghorror.com/sorting-for-humans-natural-sort-order
+    :param l: the list to sort
+    """
+    convert = lambda text: int(text) if text.isdigit() else text
+    alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
+    l.sort(key=alphanum_key)
 
 
 def check_input(args):
@@ -277,7 +289,9 @@ def create_vcf(region):
     :param region: the region to process
     """
     # get all the BAM files first
-    bamfiles = [os.path.join(region, bamf) for bamf in os.listdir(region)]
+    input_files = os.listdir(region)
+    natural_sort(input_files)
+    bamfiles = [os.path.join(region, bamf) for bamf in input_files]
 
     samtools_cmd = build_samtools_args(bamfiles)
     varscan_cmd = build_varscan_args()
@@ -406,6 +420,8 @@ if __name__ == "__main__":
     if not valid:
         s_print("headers are not the same", pro=ERR)
         sys.exit()
+
+    natural_sort(HEADER)
 
     make_dirs(HEADER)
     create_threads(bamfiles)
