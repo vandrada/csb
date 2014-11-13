@@ -42,12 +42,12 @@ def s_print(mes, newline=True, pro='*'):
     :param pro: the prologue to precede mes. The default is '*'
     """
     t_form = "%H:%M:%S"
-    lock.acquire()
+    LOCK.acquire()
     sys.stdout.write('\033[34m' + pro + '[' + time.strftime(t_form) + ']' +
                      mes + '\033[0m')
     if newline:
         sys.stdout.write("\n")
-    lock.release()
+    LOCK.release()
 
 
 def extract_header(samfile):
@@ -68,6 +68,7 @@ def get_filename(samfile):
     return samfile.split('/')[-1].split('.')[0]
 
 
+<<<<<<< Updated upstream
 def natural_sort(l):
     """
     Sorts a list naturally--the way that a human will sort it--in place.
@@ -80,22 +81,24 @@ def natural_sort(l):
 
 
 def check_input(args):
+=======
+def check_input():
+>>>>>>> Stashed changes
     """
     Ensures that input is entered and only one input source is specified.
-    :param args: the arguments from argparse
     """
     # no input specified
-    if args.file_name is None and args.dir is None and args.bam == []:
+    if ARGS.file_name is None and ARGS.dir is None and ARGS.bam == []:
         s_print("no input provided", pro=ERR)
         sys.exit()
     # multiple input
-    elif args.file_name is not None and args.dir is not None:
+    elif ARGS.file_name is not None and ARGS.dir is not None:
         s_print("input can only come from one source", pro=ERR)
         sys.exit()
-    elif args.file_name is not None and args.bam != []:
+    elif ARGS.file_name is not None and ARGS.bam != []:
         s_print("input can only come from one source", pro=ERR)
         sys.exit()
-    elif args.dir is not None and args.bam != []:
+    elif ARGS.dir is not None and ARGS.bam != []:
         s_print("input can only come from one source", pro=ERR)
         sys.exit()
 
@@ -130,22 +133,21 @@ def check_external_commands():
     check_command('vcf-concat')
 
     # make sure the VarScan location is valid
-    if not os.path.exists(args.location):
-        s_print("VarScan location (%s) not valid" % (args.location), pro=ERR)
+    if not os.path.exists(ARGS.location):
+        s_print("VarScan location (%s) not valid" % (ARGS.location), pro=ERR)
         sys.exit()
 
 
-def parse_input(args):
+def parse_input():
     """
     Parses the correct input source and returns the contents
-    :param args: the arguments from argparse
     """
-    if args.file_name:
-        return parse_file(args.file_name)
-    elif args.dir:
-        return parse_dir(args.dir)
+    if ARGS.file_name:
+        return parse_file(ARGS.file_name)
+    elif ARGS.dir:
+        return parse_dir(ARGS.dir)
     else:
-        return args.bam
+        return ARGS.bam
 
 
 def parse_file(file_with_bams):
@@ -174,18 +176,19 @@ def parse_dir(dir_with_bams):
     :return: a list of BAM files
     """
     return [os.path.join(root, bam_file)
-            for root, direc, files in os.walk(dir_with_bams)
+            for root, _, files in os.walk(dir_with_bams)
             for bam_file in files
             if bam_file.split('.')[-1] == 'bam']
 
 
-def make_dirs(sections):
+def make_dirs(sections, vcf_dir_name):
     """
     Attempts to make the dirs that are needed throughout the course of the
     program. In order to keep the working directory relatively clean this
     program creates a directory for each region in the BAM files and one for
     the VCF files.
     :param sections: a list containing the names of the directories
+    :param vcf_dir_name: the name of the directory to hold the VCF files.
     """
     try:
         for section in sections:
@@ -203,8 +206,8 @@ def read_conf_file(conf):
     :return: a list of the lines in the file
     """
     try:
-        with open(conf, "r") as f:
-            return f.readlines()
+        with open(conf, "r") as conf_file:
+            return conf_file.readlines()
     except IOError:
         # no conf file found
         s_print("%s not found; using default arguments" % (conf))
@@ -231,38 +234,40 @@ def append_arguments(cmd, conf):
     :param conf: the conf file holding the options
     """
     if conf:
-        lock.acquire()
+        LOCK.acquire()
         for line in conf:
             cmd.extend(line.strip('\n').split(' '))
-        lock.release()
+        LOCK.release()
 
 
-def build_samtools_args(bamfiles):
+def build_samtools_args(bamfiles, samtools_conf):
     """
     Parses a file containing the arguments for `samtools mpileup` and returns a
     list for subprocess.open.
     :param bamfiles: a list of the BAM files to add to the command.
+    :param samtools_conf: a file with the options to pass to samtools.
     :return: a list of arguments for the `samtools mpileup` command.
     """
     cmd = ["samtools", "mpileup"]
     cmd.extend(bamfiles)
     cmd.extend(["-o", "-"])
 
-    append_arguments(cmd, SAMTOOLS_CONF)
+    append_arguments(cmd, samtools_conf)
 
     return cmd
 
 
-def build_varscan_args():
+def build_varscan_args(varscan_conf):
     """
     Parses a file containing the arguments for VarScan and returns a list for
     subprocess.open
+    :param varscan_conf: a file with the options to pass to VarScan.
     :return: a list of arguments for the VarScan subprocess
     """
     # No filenames are needed because it's piped
-    cmd = ["java", "-jar", args.location, args.action, "--output-vcf", "1"]
+    cmd = ["java", "-jar", ARGS.location, ARGS.action, "--output-vcf", "1"]
 
-    append_arguments(cmd, VARSCAN_CONF)
+    append_arguments(cmd, varscan_conf)
 
     return cmd
 
@@ -282,23 +287,26 @@ def create_bam(bamfile, region):
                     stdout=outfile)
 
 
-def create_vcf(region):
+def create_vcf(region, vcf_dir_name, samtools_conf, varscan_conf):
     """
     Calls `samtools mpileup` on all the files in a region and pipes the output
     to VarScan. File names will have a form similar to 'vcf/chr1.vcf'.
     :param region: the region to process
+    :param vcf_dir_name: the name of the directory to hold the VCF files.
+    :param samtools_conf: a file with the options to pass to samtools.
+    :param varscan_conf: a file with the options to pass to VarScan.
     """
     # get all the BAM files first
     input_files = os.listdir(region)
     natural_sort(input_files)
     bamfiles = [os.path.join(region, bamf) for bamf in input_files]
 
-    samtools_cmd = build_samtools_args(bamfiles)
-    varscan_cmd = build_varscan_args()
+    samtools_cmd = build_samtools_args(bamfiles, samtools_conf)
+    varscan_cmd = build_varscan_args(varscan_conf)
     outfile_name = os.path.join(vcf_dir_name, region + ".vcf")
     varscan_file = open(outfile_name, "w+b")
 
-    if args.verbose:
+    if ARGS.verbose:
         s_print("calling: \n%s | %s > %s" % (' '.join(samtools_cmd),
                 ' '.join(varscan_cmd), varscan_file.name))
 
@@ -324,10 +332,10 @@ def concat_vcfs(vcf_dir):
     arglist = ["vcf-concat"]
     for vcf in os.listdir(vcf_dir):
         arglist.append(os.path.join(vcf_dir, vcf))
-    if args.verbose:
+    if ARGS.verbose:
         s_print("running vcf-concat on the files in %s" % vcf_dir)
 
-    with open(args.out, "w+") as vcf_file:
+    with open(ARGS.out, "w+") as vcf_file:
         subprocess.call(arglist, stdout=vcf_file)
 
     # clean up
@@ -339,90 +347,112 @@ def concat_vcfs(vcf_dir):
         s_print("%s not empty" % vcf_dir, pro=ERR)
 
 
-def run(region, bamfiles):
+def run(region, bamfiles, vcf_dir_name, samtools_conf, varscan_conf):
     """
     Super generic name, but this function does the bulk of the work. It creates
     the BAM files and then creates the VCF files.
     :param region: the region to process
     :param bamfile: a list of BAM files to process
+    :param vcf_dir_name: the name of the directory to hold the VCF files.
+    :param samtools_conf: a file with the options to pass to samtools.
+    :param varscan_conf: a file with the options to pass to VarScan.
     """
-    if args.verbose:
+    if ARGS.verbose:
         s_print("starting region %s" % (region))
     for bamfile in bamfiles:
         create_bam(bamfile, region)
-    create_vcf(region)
+    create_vcf(region, vcf_dir_name, samtools_conf, varscan_conf)
 
 
-def create_threads(bamfiles):
+def create_threads(bamfiles, header, vcf_dir_name, samtools_conf,
+                   varscan_conf):
     """
     Creates the threads to handle the individual regions.
     :param bamfiles: a list of BAM files to process
+    :param header: the header of the VCF files
+    :param vcf_dir_name: the name of the directory to hold the VCF files.
+    :param samtools_conf: a file with the options to pass to samtools.
+    :param varscan_conf: a file with the options to pass to VarScan.
+
     """
-    with ThreadPoolExecutor(max_workers=args.n_region) as executor:
-        for region in HEADER:
-            executor.submit(run, region, bamfiles)
+    with ThreadPoolExecutor(max_workers=ARGS.n_region) as executor:
+        for region in header:
+            executor.submit(run, region, bamfiles, vcf_dir_name, samtools_conf,
+                            varscan_conf)
 
-if __name__ == "__main__":
-    ERR = '!'   # default value for s_print
-    lock = multiprocessing.Lock()
+
+def main():
+    """
+    Main method
+    """
     vcf_dir_name = "vcf"
-
-    parser = ArgumentParser()
-    # arguments
-    # specifying the file(s)
-    parser.add_argument(
-        "--file", dest="file_name", default=None,
-        help="a file containing the names of the files to process")
-    parser.add_argument(
-        "--dir", dest="dir", default=None,
-        help="the directory containing the BAM files")
-    parser.add_argument(
-        "--list", dest="bam", nargs='+', default=[],
-        help="a list of the BAM files")
-    # other
-    parser.add_argument(
-        "location",
-        help="the location of the VarScan jar file")
-    parser.add_argument(
-        "action",
-        help="the action for VarScan to run")
-    # options
-    parser.add_argument(
-        "--out", dest="out", default="run.vcf",
-        help="the name of the output VCF file")
-    parser.add_argument(
-        "--n-region", type=int, dest="n_region", default=2,
-        help="the number of regions to process in parallel")
-    parser.add_argument(
-        "--verbose", "-v", action="store_true")
-    args = parser.parse_args()
-
-    check_input(args)
+    check_input()
     check_external_commands()
 
-    SAMTOOLS_CONF = read_conf_file("samtools.conf")
-    VARSCAN_CONF = read_conf_file("varscan.conf")
-    bamfiles = []
-    to_process = parse_input(args)
+    samtools_conf = read_conf_file("samtools.conf")
+    varscan_conf = read_conf_file("varscan.conf")
+    to_process = parse_input()
 
     # check if the files are valid
     if to_process == []:
         s_print("no files found; exiting", pro=ERR)
         sys.exit()
-    if args.verbose:
+    if ARGS.verbose:
         s_print("found the following files: %s" % (', '.join(to_process)))
 
     # create the BAM files
     bamfiles = [pysam.Samfile(bam, "rb") for bam in to_process]
 
     # make sure all the files have the same header and regions
-    (valid, HEADER) = check_headers(bamfiles)
+    (valid, header) = check_headers(bamfiles)
     if not valid:
         s_print("headers are not the same", pro=ERR)
         sys.exit()
 
+    make_dirs(header, vcf_dir_name)
+    create_threads(bamfiles, header, vcf_dir_name, samtools_conf, varscan_conf)
+    concat_vcfs(vcf_dir_name)
+
+
+if __name__ == '__main__':
+    ERR = '!'
+    LOCK = multiprocessing.Lock()
+    PARSER = ArgumentParser()
+    # arguments
+    # specifying the file(s)
+    PARSER.add_argument(
+        "--file", dest="file_name", default=None,
+        help="a file containing the names of the files to process")
+    PARSER.add_argument(
+        "--dir", dest="dir", default=None,
+        help="the directory containing the BAM files")
+    PARSER.add_argument(
+        "--list", dest="bam", nargs='+', default=[],
+        help="a list of the BAM files")
+    # other
+    PARSER.add_argument(
+        "location",
+        help="the location of the VarScan jar file")
+    PARSER.add_argument(
+        "action",
+        help="the action for VarScan to run")
+    # options
+    PARSER.add_argument(
+        "--out", dest="out", default="run.vcf",
+        help="the name of the output VCF file")
+    PARSER.add_argument(
+        "--n-region", type=int, dest="n_region", default=2,
+        help="the number of regions to process in parallel")
+    PARSER.add_argument(
+        "--verbose", "-v", action="store_true")
+    ARGS = PARSER.parse_args()
+
+<<<<<<< Updated upstream
     natural_sort(HEADER)
 
     make_dirs(HEADER)
     create_threads(bamfiles)
     concat_vcfs(vcf_dir_name)
+=======
+    main()
+>>>>>>> Stashed changes
