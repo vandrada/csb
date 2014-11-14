@@ -68,7 +68,6 @@ def get_filename(samfile):
     return samfile.split('/')[-1].split('.')[0]
 
 
-<<<<<<< Updated upstream
 def natural_sort(l):
     """
     Sorts a list naturally--the way that a human will sort it--in place.
@@ -80,10 +79,7 @@ def natural_sort(l):
     l.sort(key=alphanum_key)
 
 
-def check_input(args):
-=======
 def check_input():
->>>>>>> Stashed changes
     """
     Ensures that input is entered and only one input source is specified.
     """
@@ -409,6 +405,8 @@ def main():
         s_print("headers are not the same", pro=ERR)
         sys.exit()
 
+    natural_sort(header)
+
     make_dirs(header, vcf_dir_name)
     create_threads(bamfiles, header, vcf_dir_name, samtools_conf, varscan_conf)
     concat_vcfs(vcf_dir_name)
@@ -447,12 +445,4 @@ if __name__ == '__main__':
         "--verbose", "-v", action="store_true")
     ARGS = PARSER.parse_args()
 
-<<<<<<< Updated upstream
-    natural_sort(HEADER)
-
-    make_dirs(HEADER)
-    create_threads(bamfiles)
-    concat_vcfs(vcf_dir_name)
-=======
     main()
->>>>>>> Stashed changes
